@@ -1,0 +1,7 @@
+
+logging:
+    file:
+        name: /dev/null
+        max-size: 4GB
+    level:
+        skt.mno.mpai.mps: ERROR

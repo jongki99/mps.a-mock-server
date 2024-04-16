@@ -1,0 +1,70 @@
+
+plugins {
+    id 'org.springframework.boot' version '2.3.6.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
+    id 'java'
+    id "de.undercouch.download" version "4.1.1"
+}
+
+group = 'mps.a-mock-server'
+version = '0.0.1-SNAPSHOT'
+
+
+group = 'skt.mno.mpai.mps'
+version = '1.0.0-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+def queryDSLVersion = '4.2.2'
+def profile = System.getenv('ZONE_NAME') == null ? 'local' : System.getenv('ZONE_NAME')
+def corelibVersion = (profile == 'local' || profile == 'dev' || profile == 'stg' ) ? 'SNAPSHOT' : 'RELEASE'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+
+    querydsl.extendsFrom compileClasspath
+}
+
+repositories {
+    mavenCentral()
+    maven {
+		if(profile == 'local' || profile == 'dev' || profile == 'stg'){
+            url nexusUrl
+        }
+
+        if(profile == 'prd'){
+            url repoReleases
+        }
+
+    	credentials {
+	        username = nexusUserName
+	        password = nexusPassword
+	    }
+    }
+}
+
+ext {
+     set('springCloudVersion', 'Hoxton.SR9')
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	
+	    compileOnly 'org.projectlombok:lombok'
+	    annotationProcessor 'org.projectlombok:lombok'
+	    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	    
+	    
+    implementation "skt.mno.mpai.mps:mps.corelib.global:1.0.36-${corelibVersion}"
+    implementation "skt.mno.mpai.mps:mps.corelib.core:1.0.69-${corelibVersion}"
+    implementation "skt.mno.mpai.mps:mps.corelib.cache:1.0.16-${corelibVersion}"
+    implementation "skt.mno.mpai.mps:mps.corelib.legacy:1.0.182-${corelibVersion}"
+    
+	// 엑셀파일poi
+	compile ('org.apache.poi:poi:4.1.2')
+	compile ('org.apache.poi:poi-ooxml:4.1.2')
+    
+}
