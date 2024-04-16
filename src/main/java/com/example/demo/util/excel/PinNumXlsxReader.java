@@ -59,5 +59,9 @@ public class PinNumXlsxReader extends ObjectXlsxReader<PinNumDto> {
 		}
 		return true;
 	}
+
+	public static void main(String[] args) {
+		TestLocalXlsxReaderMain.main(args);
+	}
 	
 }

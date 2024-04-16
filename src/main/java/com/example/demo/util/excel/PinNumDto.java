@@ -1,8 +1,8 @@
 package com.example.demo.util.excel;
 
-import lombok.ToString;
+import lombok.Data;
 
-@ToString
+@Data
 public class PinNumDto {
 	String pinNum;
 	String staDtm;
