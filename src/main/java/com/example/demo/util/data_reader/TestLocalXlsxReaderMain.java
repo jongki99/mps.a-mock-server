@@ -131,8 +131,7 @@ public class TestLocalXlsxReaderMain {
 			log.debug(filePath);
 			
 			File file = new File(filePath);
-			CouponPinMapTestXlsxReader excelSheetHandler = new CouponPinMapTestXlsxReader(10000);
-			try {
+			try(CouponPinMapTestXlsxReader excelSheetHandler = new CouponPinMapTestXlsxReader(10000);) {
 				excelSheetHandler.readData(new FileInputStream(file));
 				excelSheetHandler.parse();
 			} catch (Exception e) {
@@ -149,14 +148,15 @@ public class TestLocalXlsxReaderMain {
 		filePaths.forEach(filePath -> {
 			log.debug(filePath);
 			File file = new File(filePath);
-			MapXlsxReader xlsxReader = new MapXlsxReader() {
-				@Override
-				public void saveAction(List<Map<String, String>> rows) {
-					log.debug("rows.size={}", rows.size());
-					log.debug("dto.toString={}", rows.get(0).toString());
-				}
-			};
-			try {
+			try(
+					MapXlsxReader xlsxReader = new MapXlsxReader() {
+						@Override
+						public void saveAction(List<Map<String, String>> rows) {
+							log.debug("rows.size={}", rows.size());
+							log.debug("dto.toString={}", rows.get(0).toString());
+						}
+					};
+					) {
 				xlsxReader.readData(new FileInputStream(file)); // 2개 시트 작은 데이터까지만 테스트. 정상임.
 				xlsxReader.parse();
 			} catch (Exception e) {
