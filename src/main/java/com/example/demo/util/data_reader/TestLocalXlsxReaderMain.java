@@ -1,6 +1,7 @@
-package com.example.demo.util.excel;
+package com.example.demo.util.data_reader;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,15 +16,15 @@ public class TestLocalXlsxReaderMain {
 		System.setProperty("javax.xml.parsers.SAXParserFactory", "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
 
 //		log.debug("start main1 large test");
-//		main1(args);
+		main1(args);
 		
 		log.debug("start first sheet");
-		main21(args);
+//		main21(args);
 		log.debug("end first sheet");
 		
-		log.debug("start multi sheet");
-		main22(args);
-		log.debug("end first sheet");
+//		log.debug("start multi sheet");
+//		main22(args);
+//		log.debug("end first sheet");
 		
 		log.debug("end");
 	}
@@ -51,12 +52,11 @@ public class TestLocalXlsxReaderMain {
 
 		filePaths.forEach(filePath -> {
 			log.debug(filePath);
-			
 			File file = new File(filePath);
 			
-			PinNumXlsxReader xlsxReader = new PinNumXlsxReader(rowsSize);
-			try {
-				xlsxReader.readExcel(file);
+			try(PinNumXlsxReader xlsxReader = new PinNumXlsxReader(rowsSize);) {
+				xlsxReader.readData(new FileInputStream(file));
+				xlsxReader.parse();
 			} catch (Exception e) {
 				log.error("", e);
 			}
@@ -79,9 +79,10 @@ public class TestLocalXlsxReaderMain {
 		filePaths.forEach(filePath -> {
 			log.debug(filePath);
 			File file = new File(filePath);
-			PinNumXlsxReader xlsxReader = new PinNumXlsxReader(rowsSize);
-			try {
-				xlsxReader.readExcel(file); // 2개 시트 작은 데이터까지만 테스트. 정상임.
+			
+			try(PinNumXlsxReader xlsxReader = new PinNumXlsxReader(rowsSize);) {
+				xlsxReader.readData(new FileInputStream(file)); // 2개 시트 작은 데이터까지만 테스트. 정상임.
+				xlsxReader.parse();
 			} catch (Exception e) {
 				log.error("", e);
 			}
@@ -97,9 +98,10 @@ public class TestLocalXlsxReaderMain {
 		filePaths.forEach(filePath -> {
 			log.debug(filePath);
 			File file = new File(filePath);
-			PinNumXlsxReader xlsxReader = new PinNumXlsxReader(rowsSize);
-			try {
-				xlsxReader.readExcelAll(file); // 2개 시트 작은 데이터까지만 테스트. 정상임.
+			
+			try(PinNumXlsxReader xlsxReader = new PinNumXlsxReader(rowsSize);) {
+				xlsxReader.readData(new FileInputStream(file), true); // 2개 시트 작은 데이터까지만 테스트. 정상임.
+				xlsxReader.parse();
 			} catch (Exception e) {
 				log.error("", e);
 			}
@@ -131,7 +133,8 @@ public class TestLocalXlsxReaderMain {
 			File file = new File(filePath);
 			CouponPinMapTestXlsxReader excelSheetHandler = new CouponPinMapTestXlsxReader(10000);
 			try {
-				excelSheetHandler.readExcel(file);
+				excelSheetHandler.readData(new FileInputStream(file));
+				excelSheetHandler.parse();
 			} catch (Exception e) {
 				log.error("", e);
 			}
@@ -149,14 +152,13 @@ public class TestLocalXlsxReaderMain {
 			MapXlsxReader xlsxReader = new MapXlsxReader() {
 				@Override
 				public void saveAction(List<Map<String, String>> rows) {
-					// TODO DB save action.
-					totalCounted += rows.size(); // 
 					log.debug("rows.size={}", rows.size());
 					log.debug("dto.toString={}", rows.get(0).toString());
 				}
 			};
 			try {
-				xlsxReader.readExcel(file); // 2개 시트 작은 데이터까지만 테스트. 정상임.
+				xlsxReader.readData(new FileInputStream(file)); // 2개 시트 작은 데이터까지만 테스트. 정상임.
+				xlsxReader.parse();
 			} catch (Exception e) {
 				log.error("", e);
 			}

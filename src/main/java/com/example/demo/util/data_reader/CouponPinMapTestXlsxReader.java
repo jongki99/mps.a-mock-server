@@ -1,4 +1,4 @@
-package com.example.demo.util.excel;
+package com.example.demo.util.data_reader;
 
 import java.util.List;
 import java.util.Map;
@@ -6,18 +6,17 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class CouponPinMapTeestXlsxReader extends MapXlsxReader {
+public class CouponPinMapTestXlsxReader extends MapXlsxReader {
 
-	public CouponPinMapTeestXlsxReader() {
+	public CouponPinMapTestXlsxReader() {
 		super(1000);
 	}
-	public CouponPinMapTeestXlsxReader(int rowSize) {
+	public CouponPinMapTestXlsxReader(int rowSize) {
 		super(rowSize);
 	}
 
 	@Override
 	public void saveAction(List<Map<String, String>> rows) {
-		totalCounted += rows.size(); // 
 		log.debug("saveAction rows.size={}", rows.size());
 	}
 
