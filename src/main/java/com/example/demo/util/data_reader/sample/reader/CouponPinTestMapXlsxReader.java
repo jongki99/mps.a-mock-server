@@ -1,9 +1,11 @@
-package com.example.demo.util.data_reader;
+package com.example.demo.util.data_reader.sample.reader;
 
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
+
+import com.example.demo.util.data_reader.reader.xlsx.MapXlsxReader;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,7 +45,7 @@ public class CouponPinTestMapXlsxReader extends MapXlsxReader {
 	 */
 	public static void main(String[] args) {
 		log.debug("업무별 확장 클래스...");
-		TestLocalXlsxReaderMain.mainMap(args);
+		TestLocalXlsxReader.mainMap(args);
 	}
 	
 }

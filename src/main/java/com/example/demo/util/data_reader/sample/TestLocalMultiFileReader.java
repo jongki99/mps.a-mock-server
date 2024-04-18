@@ -1,4 +1,4 @@
-package com.example.demo.util.data_reader;
+package com.example.demo.util.data_reader.sample;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -7,13 +7,15 @@ import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import com.example.demo.util.data_reader.ReadFileTypeEnum;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class TestLocalMultiMapReader {
+public class TestLocalMultiFileReader {
 	public static void main(String[] args) throws Exception {
 		mainPinNumObjectMapReader(args);
-		mainPinNumHashMapReader(args);
+		mainMultiFileHashMapReader(args);
 	}
 
 	public static void mainPinNumObjectMapReader(String[] args) throws Exception {
@@ -23,14 +25,14 @@ public class TestLocalMultiMapReader {
 		final int rowsSize = 1000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
 		List<String> filePaths = new ArrayList<>();
 
-		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/temp_data_6_columns.csv"); // 0.3초만에 다 읽어버리네... 307 M 까지... 더 많은데???
-		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/temp_data_6_columns_20.xlsx"); // 0.3초만에 다 읽어버리네... 307 M 까지... 더 많은데???
-		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample_xls_down/file_example_XLS_10.xls"); // 0.3초만에 다 읽어버리네... 307 M 까지... 더 많은데???
+		filePaths.add(SampleFileConstant.CSV.temp_data_6_columns_10row);
+		filePaths.add(SampleFileConstant.XLSX.temp_data_6_columns_20);
+		filePaths.add(SampleFileConstant.XLS.file_example_XLS_10);
 		
 		filePaths.forEach(filePath -> {
 			log.debug("\n\n\n\n\n{}", filePath);
 			try (
-					PinNumObjectMapReader dataFileReader = new PinNumObjectMapReader(rowsSize, ReadDataTypeEnum.getReadDataTypeEnum(filePath)) {
+					PinNumMultiFileObjectMapReader dataFileReader = new PinNumMultiFileObjectMapReader(rowsSize, ReadFileTypeEnum.getReadDataTypeEnum(filePath)) {
 						@Override
 						public void saveAction(List<SamplePinNumDto> rows) {
 							if ( CollectionUtils.isNotEmpty(rows) ) {
@@ -51,21 +53,21 @@ public class TestLocalMultiMapReader {
 	}
 	
 
-	public static void mainPinNumHashMapReader(String[] args) throws Exception {
+	public static void mainMultiFileHashMapReader(String[] args) throws Exception {
 		/** 이게 문제인데... 이것 바꾸는 방법을 ... -_-;;  */
 		System.setProperty("javax.xml.parsers.SAXParserFactory", "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
 		
 		final int rowsSize = 1000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
 		List<String> filePaths = new ArrayList<>();
 
-		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/temp_data_6_columns.csv"); // 0.3초만에 다 읽어버리네... 307 M 까지... 더 많은데???
-		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/temp_data_6_columns_20.xlsx"); // 0.3초만에 다 읽어버리네... 307 M 까지... 더 많은데???
-		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample_xls_down/file_example_XLS_10.xls"); // 0.3초만에 다 읽어버리네... 307 M 까지... 더 많은데???
+		filePaths.add(SampleFileConstant.CSV.temp_data_6_columns_10row);
+		filePaths.add(SampleFileConstant.XLSX.temp_data_6_columns_20);
+		filePaths.add(SampleFileConstant.XLS.file_example_XLS_10);
 		
 		filePaths.forEach(filePath -> {
 			log.debug("\n\n\n\n\n{}", filePath);
 			try (
-					PinNumHashMapReader dataFileReader = new PinNumHashMapReader(rowsSize, ReadDataTypeEnum.getReadDataTypeEnum(filePath)) {
+					MultiFileHashMapReader dataFileReader = new MultiFileHashMapReader(rowsSize, ReadFileTypeEnum.getReadDataTypeEnum(filePath)) {
 						@Override
 						public void saveAction(List<Map<String, String>> rows) {
 							if ( CollectionUtils.isNotEmpty(rows) ) {

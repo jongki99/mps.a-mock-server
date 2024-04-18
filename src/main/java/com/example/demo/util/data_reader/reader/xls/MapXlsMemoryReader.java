@@ -1,4 +1,4 @@
-package com.example.demo.util.data_reader;
+package com.example.demo.util.data_reader.reader.xls;
 /* ====================================================================
 Licensed to the Apache Software Foundation (ASF) under one or more
 contributor license agreements.  See the NOTICE file distributed with
@@ -32,6 +32,9 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.NumberToTextConverter;
+
+import com.example.demo.util.data_reader.reader.AbsDataFileReader;
+import com.example.demo.util.data_reader.sample.SampleFileConstant;
 
 import lombok.extern.slf4j.Slf4j;
 import skt.mno.mpai.mps.global.util.StringUtil;
@@ -209,13 +212,12 @@ public class MapXlsMemoryReader<E> extends AbsDataFileReader<Map<String, String>
 		final int rowsSize = 1000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
 		
 		List<String> filePaths = new ArrayList<>();
-		// filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/test_20-2.xlsx");
-//		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample_xls_down/file_example_XLS_10.xls");
-		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample_xls_down/file_example_XLS_5000.xls"); // 0.3초만에 다 읽어버리네... 260 M 까지... 순간적으로는 거의 동일하게 올라가는듯.. 메모리 제한을 걸고 테스트. 데이터가 더 많아야... ㅜ.
+		filePaths.add(SampleFileConstant.XLS.file_example_XLS_5000);
+		filePaths.add(SampleFileConstant.XLS.file_example_XLS_10);
 		// 5000건 -Xmx9m 까지 동작을 하네... 8m 부터는 OOM
 
 		filePaths.forEach(filePath -> {
-			log.debug(filePath);
+			log.debug("\n\n\n\n\n{}", filePath);
 			try (
 					MapXlsMemoryReader<Map<String, String>> xls2csv = new MapXlsMemoryReader<>(rowsSize);
 			) {
@@ -225,7 +227,6 @@ public class MapXlsMemoryReader<E> extends AbsDataFileReader<Map<String, String>
 				e.printStackTrace();
 			}
 		});
-		Thread.sleep(5000);
 	}
 
 }

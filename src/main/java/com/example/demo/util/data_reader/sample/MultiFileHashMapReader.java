@@ -1,7 +1,10 @@
-package com.example.demo.util.data_reader;
+package com.example.demo.util.data_reader.sample;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import com.example.demo.util.data_reader.ReadFileTypeEnum;
+import com.example.demo.util.data_reader.multi.AbsMultiFileObjectMapReader;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,11 +14,11 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * 여기서는 매핑정보 등을 정의하고, 실제 업무는 업무 처리 로직에서 saveAction 을 override 해서 로직내에서 처리하도록 한다.
  * 
- * 참조 : {@link PinNumObjectMapReader} : SamplePinNumDto 으로 saveAction 을 받아서 처리하는 샘플. 매핑 샘플로 제공.
+ * 참조 : {@link PinNumMultiFileObjectMapReader} : SamplePinNumDto 으로 saveAction 을 받아서 처리하는 샘플. 매핑 샘플로 제공.
  * </pre>
  */
 @Slf4j
-public abstract class PinNumHashMapReader extends AbsObjectMapReader<Map<String, String>> {
+public abstract class MultiFileHashMapReader extends AbsMultiFileObjectMapReader<Map<String, String>> {
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -29,12 +32,13 @@ public abstract class PinNumHashMapReader extends AbsObjectMapReader<Map<String,
 	}
 	
 	
-	public PinNumHashMapReader(int rowsSize, ReadDataTypeEnum readDataTypeEnum) {
+	public MultiFileHashMapReader(int rowsSize, ReadFileTypeEnum readDataTypeEnum) {
 		super(rowsSize, readDataTypeEnum);
 	}
 	
 	
 	public static void main(String[] args) throws Exception {
-		TestLocalMultiMapReader.mainPinNumHashMapReader(args);
+		log.debug("구현 테스트. "+MultiFileHashMapReader.class.getSimpleName());
+		TestLocalMultiFileReader.mainMultiFileHashMapReader(args);
 	}
 }

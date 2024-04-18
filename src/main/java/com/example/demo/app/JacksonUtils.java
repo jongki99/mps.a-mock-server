@@ -1,18 +1,20 @@
 package com.example.demo.app;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+
+import org.springframework.boot.json.JacksonJsonParser;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.json.JacksonJsonParser;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class JacksonUtils {
@@ -42,7 +44,6 @@ public class JacksonUtils {
         return parser.parseMap(json);
     }
 
-    @SuppressWarnings( {"rawtypes", "unchecked"})
     public static <T> T toObject(String json, Class<T> clazz) throws IOException {
         return mapper.readValue(json, clazz);
     }

@@ -1,4 +1,4 @@
-package com.example.demo.util.data_reader;
+package com.example.demo.util.data_reader.reader;
 
 import java.lang.reflect.Field;
 import java.util.Map;

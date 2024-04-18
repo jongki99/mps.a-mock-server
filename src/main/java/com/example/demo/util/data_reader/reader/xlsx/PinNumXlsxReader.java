@@ -1,4 +1,4 @@
-package com.example.demo.util.data_reader;
+package com.example.demo.util.data_reader.reader.xlsx;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
+
+import com.example.demo.util.data_reader.sample.SamplePinNumDto;
+import com.example.demo.util.data_reader.sample.reader.TestLocalXlsxReader;
 
 import lombok.extern.slf4j.Slf4j;
 import skt.mno.mpai.mps.global.util.StringUtil;
@@ -66,7 +69,7 @@ public class PinNumXlsxReader extends AbsObjectXlsxReader<SamplePinNumDto> {
 	
 	@Override
 	protected boolean isValidationObject(SamplePinNumDto pin) {
-		if ( StringUtil.isBlank(pin.pinNum) ) {
+		if ( StringUtil.isBlank(pin.getPinNum()) ) {
 			return false;
 		}
 		
@@ -74,7 +77,7 @@ public class PinNumXlsxReader extends AbsObjectXlsxReader<SamplePinNumDto> {
 	}
 
 	public static void main(String[] args) {
-		TestLocalXlsxReaderMain.main(args);
+		TestLocalXlsxReader.main(args);
 	}
 
 	

@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ExcelSheetMapHandler implements XSSFSheetXMLHandler.SheetContentsHandler {
 
 	private int currentCol = -1;
+	@SuppressWarnings("unused")
 	private int currRowNum = 0;
 
 	private List<List<String>> rows = new ArrayList<>();	//실제 엑셀을 파싱해서 담아지는 데이터
@@ -160,11 +161,16 @@ public class ExcelSheetMapHandler implements XSSFSheetXMLHandler.SheetContentsHa
 ////						System.out.println(str);
 //					}
 //				}
+				log.debug("total count={}", excelSheetHandler.getTotalCount());
 			} catch (Exception e) {
 				log.error("", e);
 			}
 		});
 		Thread.sleep(10_000);
+	}
+
+	private int getTotalCount() {
+		return 0;
 	}
 
 }

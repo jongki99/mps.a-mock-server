@@ -9,6 +9,7 @@ public class TestDateTime {
 		LocalDateTime date = LocalDateTime.parse("1985-04-12T23:20:50.123");
 		System.out.println(date);
 		
+		@SuppressWarnings("deprecation")
 		Date dd = new Date(Date.parse("1985-04-12"));
 		System.out.println(dd);
 	}

@@ -1,4 +1,4 @@
-package com.example.demo.util.data_reader;
+package com.example.demo.util.data_reader.reader.xls;
 /* ====================================================================
 Licensed to the Apache Software Foundation (ASF) under one or more
 contributor license agreements.  See the NOTICE file distributed with
@@ -51,6 +51,9 @@ import org.apache.poi.hssf.record.SSTRecord;
 import org.apache.poi.hssf.record.StringRecord;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+
+import com.example.demo.util.data_reader.reader.AbsDataFileReader;
+import com.example.demo.util.data_reader.sample.SampleFileConstant;
 
 import lombok.extern.slf4j.Slf4j;
 import skt.mno.mpai.mps.global.util.StringUtil;
@@ -454,14 +457,13 @@ public class MapXlsStreamReader extends AbsDataFileReader<Map<String, String>> i
 		final int rowsSize = 1000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
 		
 		List<String> filePaths = new ArrayList<>();
-		// filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/test_20-2.xlsx");
-//		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample_xls_down/file_example_XLS_10.xls");
-		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample_xls_down/file_example_XLS_5000.xls"); // 0.3초만에 다 읽어버리네... 307 M 까지... 더 많은데???
+		filePaths.add(SampleFileConstant.XLS.file_example_XLS_10);
+		filePaths.add(SampleFileConstant.XLS.file_example_XLS_5000);
 		// 5000건 -Xmx1m 까지 동작을 하네...
 		// 일단 data 출력 테스트.
 
 		filePaths.forEach(filePath -> {
-			log.debug(filePath);
+			log.debug("\n\n\n\n\n{}", filePath);
 			try (
 					MapXlsStreamReader xls2csv = new MapXlsStreamReader(rowsSize);
 			) {

@@ -1,4 +1,4 @@
-package com.example.demo.util.data_reader;
+package com.example.demo.util.data_reader.multi;
 
 import java.io.Closeable;
 import java.io.FileInputStream;
@@ -7,7 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.example.demo.util.excel.ExcelColumnMapper;
+import com.example.demo.util.data_reader.ReadFileTypeEnum;
+import com.example.demo.util.data_reader.reader.AbsDataFileReader;
+import com.example.demo.util.data_reader.reader.DataFileReader;
+import com.example.demo.util.data_reader.reader.ExcelColumnMapper;
+import com.example.demo.util.data_reader.reader.csv.MapCsvReader;
+import com.example.demo.util.data_reader.reader.xls.MapXlsStreamReader;
+import com.example.demo.util.data_reader.reader.xlsx.MapXlsxReader;
+import com.example.demo.util.data_reader.sample.MultiFileHashMapReader;
+import com.example.demo.util.data_reader.sample.PinNumMultiFileObjectMapReader;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,19 +27,19 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * 이 클래스를 구현하고, 필요한 정보를 생성하고, 필요한 곳에서 saveAction 만 필요에 따라서 생성과 동시에 업무 처리를 하도록 작업.
  * 
- * 샘플 구현체 : {@link PinNumHashMapReader} : List<HashMap> 으로 saveAction 을 받아서 처리하는 샘플. 처리 샘플로 제공하는 것으로 가급적 Dto 를 만들고, 해당 Dto 를 처리하도록 Reader 를 생성해서 사용하자.
- * 샘플 구현체 : {@link PinNumObjectMapReader} : SamplePinNumDto 으로 saveAction 을 받아서 처리하는 샘플. 매핑 샘플로 제공.
+ * 샘플 구현체 : {@link MultiFileHashMapReader} : List<HashMap> 으로 saveAction 을 받아서 처리하는 샘플. 처리 샘플로 제공하는 것으로 가급적 Dto 를 만들고, 해당 Dto 를 처리하도록 Reader 를 생성해서 사용하자.
+ * 샘플 구현체 : {@link PinNumMultiFileObjectMapReader} : SamplePinNumDto 으로 saveAction 을 받아서 처리하는 샘플. 매핑 샘플로 제공.
  * </pre>
  * 
  * @param <E>
  */
 @Slf4j
-public abstract class AbsObjectMapReader<E> implements Closeable {
+public abstract class AbsMultiFileObjectMapReader<E> implements Closeable {
 	
 	private DataFileReader<?> reader;
-	protected ReadDataTypeEnum readDataTypeEnum;
+	protected ReadFileTypeEnum readDataTypeEnum;
 	
-	public void initReader(int rowSize, ReadDataTypeEnum readDataTypeEnum) {
+	public void initReader(int rowSize, ReadFileTypeEnum readDataTypeEnum) {
 		if ( readDataTypeEnum == null ) {
 			throw new RuntimeException("not supported dataType! ReadDataTypeEnum is null");
 		}
@@ -40,7 +48,7 @@ public abstract class AbsObjectMapReader<E> implements Closeable {
 		this.readDataTypeEnum = readDataTypeEnum;
 		
 		@SuppressWarnings("resource")
-		AbsObjectMapReader<E> parent = this;
+		AbsMultiFileObjectMapReader<E> parent = this;
 		
 		switch(readDataTypeEnum) {
 		case CSV:
@@ -108,12 +116,12 @@ public abstract class AbsObjectMapReader<E> implements Closeable {
 	}
 	
 	
-	public AbsObjectMapReader(int rowsSize, ReadDataTypeEnum readDataTypeEnum) {
+	public AbsMultiFileObjectMapReader(int rowsSize, ReadFileTypeEnum readDataTypeEnum) {
 		this.initReader(rowsSize, readDataTypeEnum);
 	}
 
 	
-	protected void parse(FileInputStream fileInputStream) throws IOException {
+	public void parse(FileInputStream fileInputStream) throws IOException {
 		reader.readData(fileInputStream);
 		reader.parse();
 	}

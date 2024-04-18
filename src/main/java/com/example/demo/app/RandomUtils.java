@@ -55,6 +55,7 @@ public class RandomUtils {
 		return -1;
 	}
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		{
 			double testCount = 100000D;

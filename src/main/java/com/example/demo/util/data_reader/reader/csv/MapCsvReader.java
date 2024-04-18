@@ -1,4 +1,4 @@
-package com.example.demo.util.data_reader;
+package com.example.demo.util.data_reader.reader.csv;
 /* ====================================================================
 Licensed to the Apache Software Foundation (ASF) under one or more
 contributor license agreements.  See the NOTICE file distributed with
@@ -30,16 +30,14 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
+import com.example.demo.util.data_reader.reader.AbsDataFileReader;
+import com.example.demo.util.data_reader.sample.SampleFileConstant;
+
 import lombok.extern.slf4j.Slf4j;
 import skt.mno.mpai.mps.global.util.StringUtil;
 
 /**
-* 일단 잘 동작하는거 같음. // 2024-04-18 (목)
-* 
-* MapCsvReader, MapXlsReader, MapXlsxReader 를 구현체로 하고, 이를 업무에서 wrapping 해서 사용하는게 제일 무난하겠구만..
-* 안 그러면 현재 구조로는 3개의 구현체를 만들고, Dto Map해주고, 복잡해 짐.
-* 
-* TODOKJK : ObjectUtilMapReader 를 구현해서 업무단에서 매핑해주는 ObjectMapReader 를 구현해서 DTO 를 반환해줄수 있는 구현체로 DTO 매핑하는 형식으로 해보자.
+* CSV 파일을 읽어서 cell 단위로 읽어주는 Reader 구현체. 
 */
 @Slf4j
 public class MapCsvReader extends AbsDataFileReader<Map<String, String>> {
@@ -175,15 +173,15 @@ public class MapCsvReader extends AbsDataFileReader<Map<String, String>> {
 		final int rowsSize = 1000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
 		
 		List<String> filePaths = new ArrayList<>();
-		// filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/test_20-2.xlsx");
-//		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample_xls_down/file_example_XLS_10.xls");
-//		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/g_100.csv"); // 1.5 초만에 다 읽어버리네... -Xms1m -Xmx1m
-		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/temp_data_6_columns.csv"); // 0.3초만에 다 읽어버리네... 307 M 까지... 더 많은데???
+		filePaths.add(SampleFileConstant.XLSX.test_20_2);
+		filePaths.add(SampleFileConstant.XLS.file_example_XLS_10);
+		filePaths.add(SampleFileConstant.CSV.g_100);
+		filePaths.add(SampleFileConstant.CSV.temp_data_6_columns);
 		// 5000건 -Xmx1m 까지 동작을 하네...
 		// 일단 data 출력 테스트.
 
 		filePaths.forEach(filePath -> {
-			log.debug(filePath);
+			log.debug("\n\n\n\n\n{}", filePath);
 			try (
 					MapCsvReader xls2csv = new MapCsvReader(rowsSize);
 			) {

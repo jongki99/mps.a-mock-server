@@ -1,4 +1,4 @@
-package com.example.demo.util.data_reader;
+package com.example.demo.util.data_reader.sample.reader;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -6,10 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.example.demo.util.data_reader.reader.xlsx.MapXlsxReader;
+import com.example.demo.util.data_reader.reader.xlsx.PinNumXlsxReader;
+import com.example.demo.util.data_reader.sample.SampleFileConstant;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class TestLocalXlsxReaderMain {
+public class TestLocalXlsxReader {
 	
 	public static void main(String[] args) {
 		/** 이게 문제인데... 이것 바꾸는 방법을 ... -_-;;  */
@@ -19,14 +23,16 @@ public class TestLocalXlsxReaderMain {
 		main1(args);
 		
 		log.debug("start first sheet");
-//		main21(args);
+		main21(args);
 		log.debug("end first sheet");
 		
 //		log.debug("start multi sheet");
-//		main22(args);
+		main22(args);
 //		log.debug("end first sheet");
 		
 		log.debug("end");
+		
+		mainMap(args);
 	}
 	
 	public static void main1(String[] args) {
@@ -46,12 +52,12 @@ public class TestLocalXlsxReaderMain {
 		// 할당후 해제가 잘 되도록 만 해주고, 후처리에서도 동일하게 문제가 없도록만 해주면 될듯. 필요시 totalCount 등은 impl 시에 구현해서 사용하면 될듯.
 		
 		List<String> filePaths = new ArrayList<>();
-		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/temp_data_6_columns.xlsx");
-//		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/temp_data_20.xlsx");
-//		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/test_20.xlsx");
+//		filePaths.add(SampleFileConstant.XLSX.temp_data_6_columns);
+//		filePaths.add(SampleFileConstant.XLSX.temp_data_20);
+		filePaths.add(SampleFileConstant.XLSX.test_20);
 
 		filePaths.forEach(filePath -> {
-			log.debug(filePath);
+			log.debug("\n\n\n\n\n{}", filePath);
 			File file = new File(filePath);
 			
 			try(PinNumXlsxReader xlsxReader = new PinNumXlsxReader(rowsSize);) {
@@ -62,11 +68,11 @@ public class TestLocalXlsxReaderMain {
 			}
 		});
 
-		try {
-			Thread.sleep(10_000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.sleep(10_000);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 		// 메모리 refresh 되는 동안 대기
 	}
 
@@ -74,10 +80,10 @@ public class TestLocalXlsxReaderMain {
 		final int rowsSize = 10000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
 		
 		List<String> filePaths = new ArrayList<>();
-		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/test_20-2.xlsx");
+		filePaths.add(SampleFileConstant.XLSX.test_20_2);
 
 		filePaths.forEach(filePath -> {
-			log.debug(filePath);
+			log.debug("\n\n\n\n\n{}", filePath);
 			File file = new File(filePath);
 			
 			try(PinNumXlsxReader xlsxReader = new PinNumXlsxReader(rowsSize);) {
@@ -93,10 +99,10 @@ public class TestLocalXlsxReaderMain {
 		final int rowsSize = 10000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
 		
 		List<String> filePaths = new ArrayList<>();
-		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/test_20-2.xlsx");
+		filePaths.add(SampleFileConstant.XLSX.test_20_2);
 
 		filePaths.forEach(filePath -> {
-			log.debug(filePath);
+			log.debug("\n\n\n\n\n{}", filePath);
 			File file = new File(filePath);
 			
 			try(PinNumXlsxReader xlsxReader = new PinNumXlsxReader(rowsSize);) {
@@ -123,12 +129,12 @@ public class TestLocalXlsxReaderMain {
 		 * java memory 설정. run configuration.
 		 * 
 		 */
-//		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/temp_data_6_columns.xlsx");
-//		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/temp_data_20.xlsx");
-		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/test_20.xlsx");
+//		filePaths.add(SampleFileConstant.XLSX.temp_data_6_columns);
+		filePaths.add(SampleFileConstant.XLSX.temp_data_20);
+		filePaths.add(SampleFileConstant.XLSX.test_20);
 		
 		filePaths.forEach(filePath -> {
-			log.debug(filePath);
+			log.debug("\n\n\n\n\n{}", filePath);
 			
 			File file = new File(filePath);
 			try(CouponPinTestMapXlsxReader excelSheetHandler = new CouponPinTestMapXlsxReader(10000);) {
@@ -143,10 +149,10 @@ public class TestLocalXlsxReaderMain {
 	public static void mainMap2(String[] args) {
 		
 		List<String> filePaths = new ArrayList<>();
-		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/test_20-2.xlsx");
+		filePaths.add(SampleFileConstant.XLSX.test_20_2);
 
 		filePaths.forEach(filePath -> {
-			log.debug(filePath);
+			log.debug("\n\n\n\n\n{}", filePath);
 			File file = new File(filePath);
 			try(
 					MapXlsxReader xlsxReader = new MapXlsxReader() {
