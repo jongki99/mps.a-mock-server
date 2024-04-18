@@ -1,11 +1,12 @@
 package com.example.demo.util.data_reader;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
 /**
- * xlsx, xls, csv 파일을 읽어서 특정 단위로 saveAction 처리할 수 있도록 인터페이스를 제공한다.
+ * <pre>xlsx, xls, csv 파일을 읽어서 특정 단위로 saveAction 처리할 수 있도록 인터페이스를 제공한다.
  * 
  * 저장처리를 할 부분에서 saveAction 을 구현하여, 해당 메소드가 처리를 하도록 해서, 일관된 처리방식을 구현할 수 있도록 한다.
  * 
@@ -17,11 +18,21 @@ import java.util.List;
  * xls 를 csv 로 변환하는 샘플을 이용해서 이 인터페이스를 구현했는데...
  * 잘 안되면 그냥. 전체를 메모리에 올리고, 순차로 읽으면서 하위 인터페이스를 구현해도 된다.
  * 
- * S3 에 직접 stream 으로 받아서 처리하도록 InputStream 만 만들었다. 추가해도 됨. 구현을 FileInputStream 으로 바꿔주면 되니까...
+ * S3 에 직접 stream 으로 받아서 처리하도록 InputStream 만 만들었다. 필요시 하위 구현체에 추가해도 됨. 구현을 FileInputStream 으로 바꿔주면 되니까...
  * 
+ * 왤케 많냐... 일단...
+ * list
+ * 	- Bean, Map
+ *  - Xls, Xlsx
+ * 할거.
+ *  - csv
+ *  	요거까지 하고, 테스트 코드 만들어서 commit 하고, lib 옮겨서 작업하도록 한다.
+ *  	기본 소스는 복사붙여넣기 해야 되는데... 젠장.
+ * 
+ * <pre>
  * @param <E>
  */
-public interface DataFileReader<E> extends AutoCloseable {
+public interface DataFileReader<E> extends Closeable {
 
 	
 	/**

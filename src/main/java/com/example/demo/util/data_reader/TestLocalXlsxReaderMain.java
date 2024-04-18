@@ -131,7 +131,7 @@ public class TestLocalXlsxReaderMain {
 			log.debug(filePath);
 			
 			File file = new File(filePath);
-			try(CouponPinMapTestXlsxReader excelSheetHandler = new CouponPinMapTestXlsxReader(10000);) {
+			try(CouponPinTestMapXlsxReader excelSheetHandler = new CouponPinTestMapXlsxReader(10000);) {
 				excelSheetHandler.readData(new FileInputStream(file));
 				excelSheetHandler.parse();
 			} catch (Exception e) {

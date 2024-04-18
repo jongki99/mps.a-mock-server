@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -46,9 +47,9 @@ import skt.mno.mpai.mps.global.util.StringUtil;
  * @param <E>
  */
 @Slf4j
-public class AbsXlsMemoryReader<E> extends AbsDataFileReader<Map<String, String>> {
+public class MapXlsMemoryReader<E> extends AbsDataFileReader<Map<String, String>> {
 
-	public AbsXlsMemoryReader(int saveRowSize) {
+	public MapXlsMemoryReader(int saveRowSize) {
 		super(saveRowSize); // 데이터 저장 처리 단위.
 	}
 	
@@ -69,14 +70,14 @@ public class AbsXlsMemoryReader<E> extends AbsDataFileReader<Map<String, String>
 	public void endRow(int rowNum) {
 		// Map 으로 변환 처리.
 		if ( isValidationObject(getRowDataMap()) ) {
-			log.debug("{}", getRowDataMap());
+//			log.debug("{}", getRowDataMap());
 			rows.add(new HashMap<>(getRowDataMap()));
 			addTotalCount(1);
 			if ( rows.size() % getActionRowSize() == 0 ) {
-				if (rows != null && rows.size() > 0) {
+				if ( CollectionUtils.isNotEmpty(rows) ) {
 					saveAction(rows);
+					rows.clear();
 				}
-				rows.clear();
 			}
 		}
 	}
@@ -85,17 +86,27 @@ public class AbsXlsMemoryReader<E> extends AbsDataFileReader<Map<String, String>
 	@Override
 	public void endSheet() {
 		// endRow 후 잔여 list 처리.
-		if (rows != null && rows.size() > 0) {
+		if ( CollectionUtils.isNotEmpty(rows) ) {
 			saveAction(rows);
+			rows.clear();
 		}
-		rows.clear();
 		log.debug("totalCount={}", getTotalCount());
 	}
 	
 
+	/**
+	 * 이 메소드에서 데이터를 read 처리하는 소스를 override 해서 구현하면 됨.
+	 * 여기서는 샘플로 개수만 출력하도록 구현함.
+	 * 
+	 * 구현부에 따라 다르겠지만... 보통 not null 이고, not empty 이다.
+	 */
 	@Override
 	public void saveAction(List<Map<String, String>> rows) {
-		log.debug("saveAction rows.size={}", rows.size());
+		if ( rows != null ) {
+			log.debug("first={}", rows.get(0));
+			log.debug("last={}", rows.get(rows.size()-1));
+			log.debug("saveAction rows.size={}", rows.size());
+		}
 	}
 	
 
@@ -135,13 +146,8 @@ public class AbsXlsMemoryReader<E> extends AbsDataFileReader<Map<String, String>
 
 	@Override
 	public void readData(InputStream inputStream) throws IOException {
-		this.inputStream = inputStream;
-		HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
-		this.workbook = workbook;
-		this.isAll = false;
+		readData(inputStream, false);
 	}
-	
-
 	@Override
 	public void readData(InputStream inputStream, boolean isAll) throws IOException {
 		this.inputStream = inputStream;
@@ -151,19 +157,24 @@ public class AbsXlsMemoryReader<E> extends AbsDataFileReader<Map<String, String>
 
 	@Override
 	public void parse() throws IOException {
+		this.workbook = new HSSFWorkbook(inputStream);
 		if ( this.isAll ) {
 			Iterator<Sheet> sheetIterator = workbook.sheetIterator();
 			while (sheetIterator.hasNext()) {
-				parse(sheetIterator.next());
+				parseSheet(sheetIterator.next());
 			}
 		} else {
-			Sheet worksheet = workbook.getSheetAt(0); // 첫번째 시트
-			parse(worksheet);
+			Sheet worksheet = workbook.getSheetAt(0); // 첫번째 시트만..
+			parseSheet(worksheet);
 		}
 	}
 	
 	
-	public void parse(Sheet worksheet) {
+	/**
+	 * 엑셀 파일을 읽어서 처리하는 것까지 진행함.
+	 * @param worksheet
+	 */
+	public void parseSheet(Sheet worksheet) {
 		int rows = worksheet.getPhysicalNumberOfRows(); // 해당시트의 row수
 		for(int i = 0; i < rows; i++) { // row=0은 데이터 : 해더없음 
 			Row row = worksheet.getRow(i);
@@ -206,7 +217,7 @@ public class AbsXlsMemoryReader<E> extends AbsDataFileReader<Map<String, String>
 		filePaths.forEach(filePath -> {
 			log.debug(filePath);
 			try (
-					AbsXlsMemoryReader<Map<String, String>> xls2csv = new AbsXlsMemoryReader<>(rowsSize);
+					MapXlsMemoryReader<Map<String, String>> xls2csv = new MapXlsMemoryReader<>(rowsSize);
 			) {
 				xls2csv.readData(new FileInputStream(filePath));
 				xls2csv.parse();

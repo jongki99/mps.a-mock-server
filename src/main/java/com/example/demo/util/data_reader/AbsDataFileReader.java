@@ -1,5 +1,6 @@
 package com.example.demo.util.data_reader;
 
+import java.io.Closeable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -11,19 +12,13 @@ import org.apache.poi.xssf.usermodel.XSSFComment;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * xlsx, xls, csv 파일을 읽어서 특정 단위로 saveAction 처리할 수 있도록 인터페이스를 제공한다.
+ * <pre>xlsx, xls, csv 파일을 읽어서 특정 단위로 saveAction 처리할 수 있도록 인터페이스를 제공한다.
  * 
- * 저장처리를 할 부분에서 saveAction 을 구현하여, 해당 메소드가 처리를 하도록 해서, 일관된 처리방식을 구현할 수 있도록 한다.
+ * 인터페이스 기능 제공을 위한 util 성 클래스로 기본 기능을 제공한다.
+ * 아직 인터페이스에 가깝지만... 데이터 reader 처리를 위한 기본 기능을 구현함.
  * 
- * 저장한 데이터의 total 카운트 처리.
- * 엑셀, csv 에서 데이터를 읽을때 skip 처리할 row isValidationObject 에서 처리한다.
- * 오류를 내야될 경우는 안에서 exception 을 내주면 되겠지? 종료처리는 정의하지 않았네... -_-;; 이건 쉽지 않겠구만..
- * 
- * AutoCloseable 을 구현해서 자원해제처리를 포함하도록 하자.
- * xls 를 csv 로 변환하는 샘플을 이용해서 이 인터페이스를 구현했는데...
- * 잘 안되면 그냥. 전체를 메모리에 올리고, 순차로 읽으면서 하위 인터페이스를 구현해도 된다.
- * 
- * S3 에 직접 stream 으로 받아서 처리하도록 InputStream 만 만들었다. 추가해도 됨. 구현을 FileInputStream 으로 바꿔주면 되니까...
+ * 하위 구현체에서는 각 reader 를 추상 클래스로 구현해서 업무 전단계를 구성해서 업무 단 로직을 최소화한다.
+ * </pre>
  * 
  * @param <E>
  */
@@ -33,16 +28,21 @@ public abstract class AbsDataFileReader<E> implements SheetContentsHandler, Data
 	public AbsDataFileReader(int saveRowSize) {
 		this.saveActionSize = saveRowSize; // 모든 데이터를 출력.
 	}
-	private int saveActionSize = 3; // 10000개 단위로 saveAction 호출.
+	/**
+	 * 보통 배치성이고, DB 응답이 10초 제한이 있어서, 빠른 응답이 가능한 개수로 기본값을 설정함.
+	 * 기본값을 설정하도록 업무 클래스를 만들어서 사용하면 되므로 상관이 없음.
+	 */
+	private int saveActionSize = 1000; // 10000개 단위로 saveAction 호출.
 	protected int getActionRowSize() {
 		return saveActionSize;
 	}
 
 
-	/** 전체 처리 개수 카운트 하위에서 호출해줘야 한다. */
+	/** 전체 처리 개수, 구현체에서 호출해줘야 한다. */
 	private int totalCount = 0;
 	/**
 	 * save data total count
+	 * 
 	 * @param count
 	 */
 	protected void addTotalCount(int count) {
@@ -73,6 +73,10 @@ public abstract class AbsDataFileReader<E> implements SheetContentsHandler, Data
 	}
 	
 
+	/**
+	 * 셀명으로 데이터가 들어오면... ex(A1) A 로 컬럼명을 분리해서 사용자가 참조할 수 있도록 한다.
+	 * row 단위로 처리하기전에 각 row 의 컬럼 분류작업 처리.
+	 */
 	@Override
 	public void cell(String cellReference, String formattedValue, XSSFComment comment) {
 		String col = getColumnName(cellReference);
@@ -103,6 +107,16 @@ public abstract class AbsDataFileReader<E> implements SheetContentsHandler, Data
 	}
 	
 	
+	/**
+	 * 현재 컬럼 index 값을 기준으로.. 컬럼명을 구성하는 처리.
+	 * xls 형식에서 참조를 index 로 처리하므로, 이를 인터페이스에 맞게 맞춰주는 작업.
+	 * 
+	 * 기본 구성을 xlsx 구현체의 interface 를 사용하므로, 이렇게 만들게 되었다.
+	 * 
+	 * @param thisRow
+	 * @param thisColumn
+	 * @return
+	 */
 	protected String getColumnRefName(int thisRow, int thisColumn) {
 		char startChar = 'A';
 		return (char)(startChar+thisColumn)+String.valueOf(thisRow);
@@ -117,4 +131,20 @@ public abstract class AbsDataFileReader<E> implements SheetContentsHandler, Data
 	 * @return true 이며, 저장처리를 하도록 하고, false 이면 skip 처리를 한다.
 	 */
 	protected abstract boolean isValidationObject(E row); // 단위 row 가  객체로 공백 row 등을 skip 처리.
+	
+	
+	protected void close(String logName, Closeable object) {
+		closeObject(logName, object);
+	}
+	
+	
+	public static void closeObject(String logName, Closeable object) {
+		if ( object != null ) {
+			try {
+				object.close();
+			} catch (Exception e) {
+				log.error("Closeable object = {} is close error::", logName, e);
+			}
+		}
+	}
 }

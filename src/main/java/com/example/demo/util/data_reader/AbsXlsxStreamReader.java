@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.util.XMLHelper;
@@ -23,8 +24,9 @@ import org.xml.sax.XMLReader;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * xlsx 파일 형식인 경우에 해당 클래스를 상속해서 cell 단위로 처리해서 사용한다.
- * 업무당 개별 파일을 만들어서 처리하면 된다.
+ * <pre>xlsx 파일 처리 기분 구현체.
+ * xlsx 파일은 이 클래스를 구현해서 데이터 처리를 하고, saveAction 을 구현해서 업무를 정의한다.
+ * 업무당 개별 클래스 파일을 만들어서 처리한다.
  * 
  * 기본 대용량 처리를 위해서 첫째줄 부터 읽어서 처리하는 기본 기능.
  * cell, endRow 를 커스터마이징 해서 쓰면 되도록 abstract 로 기능 제공.
@@ -38,6 +40,15 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * 수식도 처리해주지만... 대용량일때 느려질수 있다. 순차적으로 처리하지만.. 수식일 경우, 별도 처리해줄 테니...
  * 일단 없는 것으로만 테스트...
+ * 
+ * 샘플 구현체.
+ * {@link AbsObjectXlsxReader} Dto 방식으로 사용하기 위한 구현체. ( 추천 )
+ * {@link MapXlsxReader} Map 방식으로 데이터를 조회해서 사용하는 구현체.
+ * 
+ * 할일.
+ * TODOKJK : Xls, CSV 구현체와 기능을 최적화하고, 분리하는 작업을 추가해야 한다. 아직도 멀었구나... 맥북 가져와서 셋팅해야 겠네.
+ * {@link AbsDataFileReader} 에 옮겨도 될듯하고... 일단 분리 후 통합작업. 정리후 commit 해서 버전 관리하고 나서 추가 진행.
+ * </pre>
  */
 @Slf4j
 public abstract class AbsXlsxStreamReader<E> extends AbsDataFileReader<E> {
@@ -67,14 +78,23 @@ public abstract class AbsXlsxStreamReader<E> extends AbsDataFileReader<E> {
 	@Override
 	public abstract void endRow(int rowNum);
 	
+	
+	/**
+	 * 데이터를 list 에 넣어주는 공통 기능 처리.
+	 * endRow wrapper 이고, Map, Dto type 의 처리를 위해서 별도 기능으로 분리작업하였다.
+	 * 
+	 * @param newObject
+	 */
 	protected void addRow(E newObject) {
-		rows.add(newObject);
-		addTotalCount(1);
-		if ( rows.size() % getActionRowSize() == 0 ) {
-			if (rows != null && rows.size() > 0) {
-				saveAction(rows);
+		if ( isValidationObject(newObject) ) {
+			rows.add(newObject);
+			addTotalCount(1);
+			if ( rows.size() % getActionRowSize() == 0 ) {
+				if ( CollectionUtils.isNotEmpty(rows) ) {
+					saveAction(rows);
+					rows.clear();
+				}
 			}
-			rows.clear();
 		}
 	}
 	
@@ -87,60 +107,42 @@ public abstract class AbsXlsxStreamReader<E> extends AbsDataFileReader<E> {
 	@Override
 	public void endSheet() {
 		// endRow 후 잔여 list 처리.
-		if (rows != null && rows.size() > 0) {
+		if ( CollectionUtils.isNotEmpty(rows) ) {
 			saveAction(rows);
+			rows.clear();
 		}
-		rows.clear();
 		log.debug("totalCounted={}", getTotalCount());
 	}
 	
-	private AbsXlsxStreamReader<E> readExcel(InputStream inputStream) throws IOException {
-		this.inputStream = inputStream;
-		try {
-			opc = OPCPackage.open(inputStream);
-		} catch (Exception e) {
-			log.debug("", e);
-			//에러 발생했을때
-		}
-
-		return this;
-	}
 	
-
 	@Override
 	public void close() throws IOException {
-		if ( this.opc != null ) {
-			try {
-				this.opc.close();
-			} catch (Exception e) {
-				log.error("excel file close error:", e);
-			}
-		}
-		if ( this.inputStream != null ) {
-			try {
-				this.inputStream.close();
-			} catch (Exception e) {
-				log.error("excel inputStream close error:", e);
-			}
-		}
+		this.close("excel(xlsx) opc file", opc);
+		this.close("excel(xlsx) inputStream", inputStream);
 	}
+	
 
 	@Override
 	public void readData(InputStream inputStream, boolean isAll) throws IOException {
 		this.isAll = isAll;
-		this.readExcel(inputStream);
+		this.inputStream = inputStream;
 	}
+	
 
 	@Override
 	public void readData(InputStream inputStream) throws IOException {
 		this.isAll = false;
-		this.readExcel(inputStream);
+		this.inputStream = inputStream;
 	}
+	
 
+	/**
+	 * 데이터 읽기 시작 처리.
+	 */
 	@Override
 	public void parse() throws IOException {
-
 		try {
+			this.opc = OPCPackage.open(inputStream);
 			XSSFReader xssfReader = new XSSFReader(opc);
 			StylesTable styles = xssfReader.getStylesTable();
 			ReadOnlySharedStringsTable strings = new ReadOnlySharedStringsTable(opc);
@@ -162,14 +164,14 @@ public abstract class AbsXlsxStreamReader<E> extends AbsDataFileReader<E> {
 						xmlReader.parse(sheetSource);
 						log.debug("post parseing");
 					} finally {
-						sheet.close();
+						this.close("excel(xlsx) sheet", sheet);
 					}
 				}
 			} else {
-				log.debug("prev parseing");
+				log.debug("prev parseing(xmlReader.parse(inputSource))");
 				InputSource inputSource = new InputSource(sheets.next());
 				xmlReader.parse(inputSource);
-				log.debug("post parseing");
+				log.debug("post parseing(xmlReader.parse(inputSource))");
 			}
 		} catch (IOException | OpenXML4JException | SAXException | ParserConfigurationException e) {
 			log.error("xlsx parsing error::", e);

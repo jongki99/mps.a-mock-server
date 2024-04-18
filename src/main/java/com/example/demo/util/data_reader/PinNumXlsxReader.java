@@ -5,19 +5,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import lombok.extern.slf4j.Slf4j;
 import skt.mno.mpai.mps.global.util.StringUtil;
 
+
+/**
+ * <pre>Dto 를 이용한 saveAction 처리를 위한 구현체...
+ * saveAction 을 동적으로 구성하는게 좋을 듯한데..
+ * 샘플링해보자... 이게 좋은거 맞나? 업무 가독성은 좋을 듯한데...
+ * </pre>
+ */
 @Slf4j
-public class PinNumXlsxReader extends ObjectXlsxReader<PinNumDto> {
+public class PinNumXlsxReader extends AbsObjectXlsxReader<SamplePinNumDto> {
 	
 	public PinNumXlsxReader(int rowSize) {
 		super(rowSize);
 	};
 	
 	@Override
-	protected Class<PinNumDto> getRowClass() {
-		return PinNumDto.class;
+	protected Class<SamplePinNumDto> getRowClass() {
+		return SamplePinNumDto.class;
 	}
 	
 	/**
@@ -45,17 +54,22 @@ public class PinNumXlsxReader extends ObjectXlsxReader<PinNumDto> {
 	 * 저장 처리 업무는 여기서...
 	 */
 	@Override
-	public void saveAction(List<PinNumDto> rows) {
-		// TODO DB save action.
-		log.debug("rows.size={}", rows.size());
-		log.debug("dto.toString={}", rows.get(0).toString());
+	public void saveAction(List<SamplePinNumDto> rows) {
+		if ( CollectionUtils.isNotEmpty(rows) ) {
+			// apache poi 를 사용하므로 common 꺼를 사용... isNotEmpty 도 있고.
+			log.debug("데이터 확인용 샘플. 저장 등의 업무 처리 용으로 사용.");
+			log.debug("first={}", rows.get(0));
+			log.debug("last={}", rows.get(rows.size()-1));
+			log.debug("saveAction rows.size={}", rows.size());
+		}
 	}
 	
 	@Override
-	protected boolean isValidationObject(PinNumDto pin) {
+	protected boolean isValidationObject(SamplePinNumDto pin) {
 		if ( StringUtil.isBlank(pin.pinNum) ) {
 			return false;
 		}
+		
 		return true;
 	}
 

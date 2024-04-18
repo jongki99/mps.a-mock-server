@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.poi.hssf.eventusermodel.EventWorkbookBuilder.SheetRecordCollectingListener;
 import org.apache.poi.hssf.eventusermodel.FormatTrackingHSSFListener;
 import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
@@ -58,7 +59,7 @@ import skt.mno.mpai.mps.global.util.StringUtil;
 * 일단 잘 동작하는거 같음. // 2024-04-17 (수)
 */
 @Slf4j
-public class AbsXlsStreamReader<E> extends AbsDataFileReader<Map<String, String>> implements HSSFListener {
+public class MapXlsStreamReader extends AbsDataFileReader<Map<String, String>> implements HSSFListener {
 	
 	
 	private int minColumns;
@@ -80,6 +81,8 @@ public class AbsXlsStreamReader<E> extends AbsDataFileReader<Map<String, String>
 	private FormatTrackingHSSFListener formatListener;
 
 	/** So we known which sheet we're on */
+	// 일단 사용안하는데... 되려나? ㅜ.ㅜ // TODOKJK : xls 파일 다중 시트의 경우, 테스트 필요.모든 시트 잘 읽는지.. 이벤트는 잘 되는지 등등..
+	@SuppressWarnings("unused")
 	private int sheetIndex = -1;
 	private BoundSheetRecord[] orderedBSRs;
 	private final List<BoundSheetRecord> boundSheetRecords = new ArrayList<>();
@@ -99,7 +102,7 @@ public class AbsXlsStreamReader<E> extends AbsDataFileReader<Map<String, String>
 	 *                   minimum
 	 * @param saveRowSize 
 	 */
-	public AbsXlsStreamReader(POIFSFileSystem fs, PrintStream output, int minColumns, int saveRowSize) {
+	public MapXlsStreamReader(POIFSFileSystem fs, PrintStream output, int minColumns, int saveRowSize) {
 		super(saveRowSize); // 데이터 저장 처리 단위.
 		this.fs = fs;
 //		this.output = output;
@@ -116,12 +119,12 @@ public class AbsXlsStreamReader<E> extends AbsDataFileReader<Map<String, String>
 	 *
 	 * @throws IOException if the file cannot be read or parsing the file fails
 	 */
-	public AbsXlsStreamReader(InputStream inputStream, int minColumns, int saveRowSize) throws IOException {
+	public MapXlsStreamReader(InputStream inputStream, int minColumns, int saveRowSize) throws IOException {
 		this(new POIFSFileSystem(inputStream), System.out, minColumns, saveRowSize);
 	}
 	
 	
-	public AbsXlsStreamReader(int saveRowSize) {
+	public MapXlsStreamReader(int saveRowSize) {
 		super(saveRowSize); // 데이터 저장 처리 단위.
 	}
 	
@@ -371,10 +374,10 @@ public class AbsXlsStreamReader<E> extends AbsDataFileReader<Map<String, String>
 			rows.add(new HashMap<>(getRowDataMap()));
 			addTotalCount(1);
 			if ( rows.size() % getActionRowSize() == 0 ) {
-				if (rows != null && rows.size() > 0) {
+				if ( CollectionUtils.isNotEmpty(rows) ) {
 					saveAction(rows);
+					rows.clear();
 				}
-				rows.clear();
 			}
 		}
 	}
@@ -383,20 +386,22 @@ public class AbsXlsStreamReader<E> extends AbsDataFileReader<Map<String, String>
 	@Override
 	public void endSheet() {
 		// endRow 후 잔여 list 처리.
-		if (rows != null && rows.size() > 0) {
+		if ( CollectionUtils.isNotEmpty(rows) ) {
 			saveAction(rows);
+			rows.clear();
 		}
-		rows.clear();
 		log.debug("totalCount={}", getTotalCount());
 	}
 	
-
+	
 	@Override
 	public void saveAction(List<Map<String, String>> rows) {
-		log.debug("saveAction rows.size={}", rows.size());
+		if ( CollectionUtils.isNotEmpty(rows) ) {
+			log.debug("saveAction rows.size={}", rows.size());
+		}
 	}
 	
-
+	
 	@Override
 	public boolean isValidationObject(Map<String, String> row) {
 		if ( StringUtil.isBlank(row.get("A")) ) {
@@ -407,34 +412,17 @@ public class AbsXlsStreamReader<E> extends AbsDataFileReader<Map<String, String>
 		return true;
 	}
 	
-
+	
 	/**
 	 * AutoCloseable 처리.
 	 */
 	@Override
 	public void close() throws IOException {
-		// 둘중 하나만 하면 될것 같은데... 일단 둘다.
-		
-		if ( fs != null ) {
-			try {
-				fs.close();
-			} catch (Exception e) {
-				// error skip
-				log.error("xls fs.close error:", e);
-			}
-		}
-		
-		if ( inputStream != null ) {
-			try {
-				inputStream.close();
-			} catch (Exception e) {
-				// error skip
-				log.error("xls fs.close error:", e);
-			}
-		}
+		this.close("xls fs", fs);
+		this.close("xls inputStream", inputStream);
 	}
 	
-
+	
 	@Override
 	public void readData(InputStream inputStream) throws IOException {
 		this.inputStream = inputStream;
@@ -443,7 +431,7 @@ public class AbsXlsStreamReader<E> extends AbsDataFileReader<Map<String, String>
 		this.minColumns = -1;
 	}
 	
-
+	
 	@Override
 	public void readData(InputStream inputStream, boolean isAll) throws IOException {
 		this.inputStream = inputStream;
@@ -451,14 +439,14 @@ public class AbsXlsStreamReader<E> extends AbsDataFileReader<Map<String, String>
 		this.fs = fs;
 		this.minColumns = -1;
 	}
-
-
+	
+	
 	@Override
 	public void parse() throws IOException {
 		process();
 	}
 	
-
+	
 	public static void main(String[] args) throws Exception {
 		main21(args);
 	}
@@ -475,7 +463,7 @@ public class AbsXlsStreamReader<E> extends AbsDataFileReader<Map<String, String>
 		filePaths.forEach(filePath -> {
 			log.debug(filePath);
 			try (
-					AbsXlsStreamReader<Map<String, String>> xls2csv = new AbsXlsStreamReader<>(rowsSize);
+					MapXlsStreamReader xls2csv = new MapXlsStreamReader(rowsSize);
 			) {
 				xls2csv.readData(new FileInputStream(filePath));
 				xls2csv.parse();

@@ -3,7 +3,7 @@ package com.example.demo.util.data_reader;
 import lombok.Data;
 
 @Data
-public class PinNumDto {
+public class SamplePinNumDto {
 	String pinNum;
 	String staDtm;
 	String endDtm;
