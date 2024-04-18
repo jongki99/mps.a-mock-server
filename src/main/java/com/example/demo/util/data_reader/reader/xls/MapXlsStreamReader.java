@@ -64,32 +64,31 @@ import skt.mno.mpai.mps.global.util.StringUtil;
 @Slf4j
 public class MapXlsStreamReader extends AbsDataFileReader<Map<String, String>> implements HSSFListener {
 	
-	
 	private int minColumns;
 	private POIFSFileSystem fs;
 //	private final PrintStream output;
-
+	
 	private int lastRowNumber;
 	private int lastColumnNumber;
-
+	
 	/** Should we output the formula, or the value it has? */
 	private final boolean outputFormulaValues = true;
-
+	
 	/** For parsing Formulas */
 	private SheetRecordCollectingListener workbookBuildingListener;
 	private HSSFWorkbook stubWorkbook;
-
+	
 	// Records we pick up as we process
 	private SSTRecord sstRecord;
 	private FormatTrackingHSSFListener formatListener;
-
+	
 	/** So we known which sheet we're on */
 	// 일단 사용안하는데... 되려나? ㅜ.ㅜ // TODOKJK : xls 파일 다중 시트의 경우, 테스트 필요.모든 시트 잘 읽는지.. 이벤트는 잘 되는지 등등..
 	@SuppressWarnings("unused")
 	private int sheetIndex = -1;
 	private BoundSheetRecord[] orderedBSRs;
 	private final List<BoundSheetRecord> boundSheetRecords = new ArrayList<>();
-
+	
 	// For handling formulas with string results
 	private int nextRow;
 	private int nextColumn;
@@ -112,7 +111,7 @@ public class MapXlsStreamReader extends AbsDataFileReader<Map<String, String>> i
 		this.minColumns = minColumns;
 	}
 	
-
+	
 	/**
 	 * Creates a new XLS -&gt; CSV converter
 	 * 
@@ -131,7 +130,7 @@ public class MapXlsStreamReader extends AbsDataFileReader<Map<String, String>> i
 		super(saveRowSize); // 데이터 저장 처리 단위.
 	}
 	
-
+	
 	/**
 	 * Initiates the processing of the XLS file to CSV
 	 *

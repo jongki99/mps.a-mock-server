@@ -14,8 +14,6 @@ import lombok.extern.slf4j.Slf4j;
  * 참조 구현체 : {@link MapXlsxReader} 구현체는 Map 형식으로 작업을 할수 있다.
  * 
  * Dto 로 하게되면 Dto 구현체를 너무 많이 만들어줘야 하는데...
- * 
- * TODOKJK : Util 을 만들고, Map 에서 매핑처리하는 wrapper 를 만들어서 업무에서 사용할수 있는 방식을 해야 하나? ㅜ.
  * </pre>
  * 
  * @param <E>

@@ -47,9 +47,6 @@ import lombok.extern.slf4j.Slf4j;
  * {@link AbsObjectXlsxReader} Dto 방식으로 사용하기 위한 구현체. ( 추천 )
  * {@link MapXlsxReader} Map 방식으로 데이터를 조회해서 사용하는 구현체.
  * 
- * 할일.
- * TODOKJK : Xls, CSV 구현체와 기능을 최적화하고, 분리하는 작업을 추가해야 한다. 아직도 멀었구나... 맥북 가져와서 셋팅해야 겠네.
- * {@link AbsDataFileReader} 에 옮겨도 될듯하고... 일단 분리 후 통합작업. 정리후 commit 해서 버전 관리하고 나서 추가 진행.
  * </pre>
  */
 @Slf4j

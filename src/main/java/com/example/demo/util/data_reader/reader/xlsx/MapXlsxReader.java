@@ -18,12 +18,11 @@ import lombok.extern.slf4j.Slf4j;
  * 이 구현체는 Map<String, String> 으로 데이터를 key(A) value 쌍으로 조회해서 사용할수 있다.
  * 
  * 참조 구현제 : {@link AbsObjectXlsxReader} 를 사용하면, DTO 형태로 매핑해주므로 매핑처리를 별도 구현하지 않아도 사용하기 편하게 할수는 있다.
- * 
- * TODOKJK : 지금은 XlsxReader 로 구축이 되어 있는데.. MapDataReader 로 개명하고, 모든 데이터 형식 파일을 읽어들이게 개조해야 겠다. ㅜ.ㅜ
  * </pre>
  */
 @Slf4j
 public class MapXlsxReader extends AbsXlsxStreamReader<Map<String, String>> {
+	
 	
 	public MapXlsxReader() {
 		this(1000);

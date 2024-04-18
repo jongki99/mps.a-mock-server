@@ -303,7 +303,7 @@ public class XLS2CSVmra<E> extends AbsDataFileReader<Map<String, String>> implem
 			thisRow = mc.getRow();
 			thisColumn = mc.getColumn();
 			thisStr = "";
-			// TODOKJK 8933-largeUpload 개선 방향 : 요기도 cell 호출하는게 맞을 듯한데.. 없어도 뭐...
+			// 요기도 cell 호출하는게 맞을 듯한데.. 없어도 뭐...
 		}
 
 		// If we got something to print out, do so
@@ -428,13 +428,11 @@ public class XLS2CSVmra<E> extends AbsDataFileReader<Map<String, String>> implem
 
 	@Override
 	public void readData(InputStream inputStream, boolean isAll) throws IOException {
-		// FIXMEKJK Auto-generated method stub
 		
 	}
 
 	@Override
 	public void readData(InputStream inputStream) throws IOException {
-		// FIXMEKJK Auto-generated method stub
 		
 	}
 
