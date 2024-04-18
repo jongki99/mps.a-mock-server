@@ -35,3 +35,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+*.csv
+*.xlsx
+*.zip
+*.xls
+*.numbers
+*.tsv
