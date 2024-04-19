@@ -3,13 +3,14 @@ package com.example.demo.util.data_reader.reader.xlsx;
 import java.util.Map;
 
 import com.example.demo.util.data_reader.reader.ExcelColumnMapper;
+import com.example.demo.util.data_reader.sample.reader.SimpleAbsXlsxPinNumReader;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * <pre>Dto 를 이용해서 업무 처리를 구성하는게 가독성이 좋으므로, 이를 사용하기 위한 중간단계이다.
  * 
- * 샘플 구현체 : {@link PinNumXlsxReader} 구현체를 이용해서 데이터를 정의해두고, 구현체를 사용할때 saveAction 만 override 해서 업무만 종속시켜서 사용하는 방식으로 코드를 분리해서 사용할수 있도록 한다.
+ * 샘플 구현체 : {@link SimpleAbsXlsxPinNumReader} 구현체를 이용해서 데이터를 정의해두고, 구현체를 사용할때 saveAction 만 override 해서 업무만 종속시켜서 사용하는 방식으로 코드를 분리해서 사용할수 있도록 한다.
  * 
  * 참조 구현체 : {@link MapXlsxReader} 구현체는 Map 형식으로 작업을 할수 있다.
  * 
@@ -19,9 +20,9 @@ import lombok.extern.slf4j.Slf4j;
  * @param <E>
  */
 @Slf4j
-public abstract class AbsObjectXlsxReader<E> extends AbsXlsxStreamReader<E> {
+public abstract class AbsXlsxObjectReader<E> extends AbsXlsxStreamReader<E> {
 
-	public AbsObjectXlsxReader(int rowSize) {
+	public AbsXlsxObjectReader(int rowSize) {
 		super(rowSize);
 	};
 

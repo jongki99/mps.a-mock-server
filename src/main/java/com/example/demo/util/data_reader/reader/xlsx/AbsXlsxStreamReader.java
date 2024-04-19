@@ -44,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
  * 일단 없는 것으로만 테스트...
  * 
  * 샘플 구현체.
- * {@link AbsObjectXlsxReader} Dto 방식으로 사용하기 위한 구현체. ( 추천 )
+ * {@link AbsXlsxObjectReader} Dto 방식으로 사용하기 위한 구현체. ( 추천 )
  * {@link MapXlsxReader} Map 방식으로 데이터를 조회해서 사용하는 구현체.
  * 
  * </pre>
@@ -66,7 +66,6 @@ public abstract class AbsXlsxStreamReader<E> extends AbsDataFileReader<E> {
 	
 	protected List<E> rows = new ArrayList<>();	//실제 엑셀을 파싱해서 담아지는 데이터
 	private OPCPackage opc;
-	private InputStream inputStream;
 	private boolean isAll;
 
 	

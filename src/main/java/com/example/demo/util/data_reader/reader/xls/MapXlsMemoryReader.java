@@ -33,7 +33,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.NumberToTextConverter;
 
 import com.example.demo.util.data_reader.reader.AbsDataFileReader;
-import com.example.demo.util.data_reader.sample.reader.TestLocalReader;
+import com.example.demo.util.data_reader.sample.base.SaveActionUtil;
+import com.example.demo.util.data_reader.sample.test.TestLocalReader;
 
 import lombok.extern.slf4j.Slf4j;
 import skt.mno.mpai.mps.global.util.StringUtil;
@@ -101,11 +102,7 @@ public class MapXlsMemoryReader<E> extends AbsDataFileReader<Map<String, String>
 	 */
 	@Override
 	public void saveAction(List<Map<String, String>> rows) {
-		if ( rows != null ) {
-			log.debug("first={}", rows.get(0));
-			log.debug("last={}", rows.get(rows.size()-1));
-			log.debug("saveAction rows.size={}", rows.size());
-		}
+		SaveActionUtil.saveAction(rows);
 	}
 	
 

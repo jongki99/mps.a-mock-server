@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.example.demo.util.data_reader.sample.reader.TestLocalReader;
+import com.example.demo.util.data_reader.sample.base.SaveActionUtil;
+import com.example.demo.util.data_reader.sample.test.TestLocalReader;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * 이 구현체는 Map<String, String> 으로 데이터를 key(A) value 쌍으로 조회해서 사용할수 있다.
  * 
- * 참조 구현제 : {@link AbsObjectXlsxReader} 를 사용하면, DTO 형태로 매핑해주므로 매핑처리를 별도 구현하지 않아도 사용하기 편하게 할수는 있다.
+ * 참조 구현제 : {@link AbsXlsxObjectReader} 를 사용하면, DTO 형태로 매핑해주므로 매핑처리를 별도 구현하지 않아도 사용하기 편하게 할수는 있다.
  * </pre>
  */
 @Slf4j
@@ -43,13 +43,7 @@ public class MapXlsxReader extends AbsXlsxStreamReader<Map<String, String>> {
 	 */
 	@Override
 	public void saveAction(List<Map<String, String>> rows) {
-		if ( CollectionUtils.isNotEmpty(rows) ) {
-			// apache poi 를 사용하므로 common 꺼를 사용... isNotEmpty 도 있고.
-			log.debug("데이터 확인용 샘플. 저장 등의 업무 처리 용으로 사용.");
-			log.debug("first={}", rows.get(0));
-			log.debug("last={}", rows.get(rows.size()-1));
-			log.debug("saveAction rows.size={}", rows.size());
-		}
+		SaveActionUtil.saveAction(rows);
 	}
 	
 	

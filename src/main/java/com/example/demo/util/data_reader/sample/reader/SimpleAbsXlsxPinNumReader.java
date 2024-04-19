@@ -1,14 +1,13 @@
-package com.example.demo.util.data_reader.reader.xlsx;
+package com.example.demo.util.data_reader.sample.reader;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections4.CollectionUtils;
-
+import com.example.demo.util.data_reader.reader.xlsx.AbsXlsxObjectReader;
 import com.example.demo.util.data_reader.sample.base.SamplePinNumDto;
-import com.example.demo.util.data_reader.sample.reader.TestLocalReader;
+import com.example.demo.util.data_reader.sample.test.TestLocalReader;
 
 import lombok.extern.slf4j.Slf4j;
 import skt.mno.mpai.mps.global.util.StringUtil;
@@ -21,9 +20,9 @@ import skt.mno.mpai.mps.global.util.StringUtil;
  * </pre>
  */
 @Slf4j
-public class PinNumXlsxReader extends AbsObjectXlsxReader<SamplePinNumDto> {
+public abstract class SimpleAbsXlsxPinNumReader extends AbsXlsxObjectReader<SamplePinNumDto> {
 	
-	public PinNumXlsxReader(int rowSize) {
+	public SimpleAbsXlsxPinNumReader(int rowSize) {
 		super(rowSize);
 	};
 	
@@ -40,6 +39,7 @@ public class PinNumXlsxReader extends AbsObjectXlsxReader<SamplePinNumDto> {
 	 */
 	private static Map<String, String> cellToField = new HashMap<>();
 	static {
+		log.debug("static 을 상속받아서 해야 되므로 주의해서 사용한다. reader 는 Map 을 구현해서 MultiFile 에서 convertObject 에서 직접 변환 처리하는 방향으로 한다.");
 		Map<String, String> temp = new HashMap<>();
 		temp.put("A", "pinNum");
 		temp.put("B", "staDtm");
@@ -56,20 +56,15 @@ public class PinNumXlsxReader extends AbsObjectXlsxReader<SamplePinNumDto> {
 	/**
 	 * 저장 처리 업무는 여기서...
 	 */
-	@Override
-	public void saveAction(List<SamplePinNumDto> rows) {
-		if ( CollectionUtils.isNotEmpty(rows) ) {
-			// apache poi 를 사용하므로 common 꺼를 사용... isNotEmpty 도 있고.
-			log.debug("데이터 확인용 샘플. 저장 등의 업무 처리 용으로 사용.");
-			log.debug("first={}", rows.get(0));
-			log.debug("last={}", rows.get(rows.size()-1));
-			log.debug("saveAction rows.size={}", rows.size());
-		}
-	}
+	@Override public abstract void saveAction(List<SamplePinNumDto> rows);
+//	public void saveAction(List<SamplePinNumDto> rows) {
+//		log.debug("보통은 abstract 로 구현하고, 업무 단에서 구현해서 사용하는 방식으로 작업하도록 한다.");
+//		SaveActionUtil.saveActionDto(rows);
+//	}
 	
 	@Override
 	protected boolean isValidationObject(SamplePinNumDto pin) {
-		if ( StringUtil.isBlank(pin.getPinNum()) ) {
+		if ( StringUtil.isBlank(pin.pinNum()) ) {
 			return false;
 		}
 		

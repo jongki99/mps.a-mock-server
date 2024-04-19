@@ -1,4 +1,4 @@
-package com.example.demo.util.data_reader.sample.reader;
+package com.example.demo.util.data_reader.sample.test;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,8 +10,11 @@ import com.example.demo.util.data_reader.reader.csv.MapCsvReader;
 import com.example.demo.util.data_reader.reader.xls.MapXlsMemoryReader;
 import com.example.demo.util.data_reader.reader.xls.MapXlsStreamReader;
 import com.example.demo.util.data_reader.reader.xlsx.MapXlsxReader;
-import com.example.demo.util.data_reader.reader.xlsx.PinNumXlsxReader;
 import com.example.demo.util.data_reader.sample.base.SampleFileConstant;
+import com.example.demo.util.data_reader.sample.base.SamplePinNumDto;
+import com.example.demo.util.data_reader.sample.base.SaveActionUtil;
+import com.example.demo.util.data_reader.sample.reader.SimpleAbsXlsxMapReader;
+import com.example.demo.util.data_reader.sample.reader.SimpleAbsXlsxPinNumReader;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -75,7 +78,12 @@ public class TestLocalReader {
 			log.debug("\n\n\n\n\n{}", filePath);
 			File file = new File(filePath);
 			
-			try(PinNumXlsxReader xlsxReader = new PinNumXlsxReader(rowsSize);) {
+			try(SimpleAbsXlsxPinNumReader xlsxReader = new SimpleAbsXlsxPinNumReader(rowsSize) {
+				@Override
+				public void saveAction(List<SamplePinNumDto> rows) {
+					SaveActionUtil.saveActionDto(rows);
+				}
+			};) {
 				xlsxReader.readData(new FileInputStream(file));
 				xlsxReader.parse();
 			} catch (Exception e) {
@@ -101,7 +109,12 @@ public class TestLocalReader {
 			log.debug("\n\n\n\n\n{}", filePath);
 			File file = new File(filePath);
 			
-			try(PinNumXlsxReader xlsxReader = new PinNumXlsxReader(rowsSize);) {
+			try(SimpleAbsXlsxPinNumReader xlsxReader = new SimpleAbsXlsxPinNumReader(rowsSize) {
+				@Override
+				public void saveAction(List<SamplePinNumDto> rows) {
+					SaveActionUtil.saveActionDto(rows);
+				}
+			};) {
 				xlsxReader.readData(new FileInputStream(file)); // 2개 시트 작은 데이터까지만 테스트. 정상임.
 				xlsxReader.parse();
 			} catch (Exception e) {
@@ -120,7 +133,12 @@ public class TestLocalReader {
 			log.debug("\n\n\n\n\n{}", filePath);
 			File file = new File(filePath);
 			
-			try(PinNumXlsxReader xlsxReader = new PinNumXlsxReader(rowsSize);) {
+			try(SimpleAbsXlsxPinNumReader xlsxReader = new SimpleAbsXlsxPinNumReader(rowsSize) {
+				@Override
+				public void saveAction(List<SamplePinNumDto> rows) {
+					SaveActionUtil.saveActionDto(rows);
+				}
+			};) {
 				xlsxReader.readData(new FileInputStream(file), true); // 2개 시트 작은 데이터까지만 테스트. 정상임.
 				xlsxReader.parse();
 			} catch (Exception e) {
@@ -152,7 +170,12 @@ public class TestLocalReader {
 			log.debug("\n\n\n\n\n{}", filePath);
 			
 			File file = new File(filePath);
-			try(CouponPinTestMapXlsxReader excelSheetHandler = new CouponPinTestMapXlsxReader(10000);) {
+			try(SimpleAbsXlsxMapReader excelSheetHandler = new SimpleAbsXlsxMapReader(10000) {
+				@Override
+				public void saveAction(List<Map<String, String>> rows) {
+					SaveActionUtil.saveAction(rows);
+				}
+			};) {
 				excelSheetHandler.readData(new FileInputStream(file));
 				excelSheetHandler.parse();
 			} catch (Exception e) {
@@ -173,8 +196,7 @@ public class TestLocalReader {
 					MapXlsxReader xlsxReader = new MapXlsxReader() {
 						@Override
 						public void saveAction(List<Map<String, String>> rows) {
-							log.debug("rows.size={}", rows.size());
-							log.debug("dto.toString={}", rows.get(0).toString());
+							SaveActionUtil.saveAction(rows);
 						}
 					};
 					) {

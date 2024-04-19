@@ -30,7 +30,8 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
 import com.example.demo.util.data_reader.reader.AbsDataFileReader;
-import com.example.demo.util.data_reader.sample.reader.TestLocalReader;
+import com.example.demo.util.data_reader.sample.base.SaveActionUtil;
+import com.example.demo.util.data_reader.sample.test.TestLocalReader;
 
 import lombok.extern.slf4j.Slf4j;
 import skt.mno.mpai.mps.global.util.StringUtil;
@@ -60,9 +61,6 @@ public class MapCsvReader extends AbsDataFileReader<Map<String, String>> {
 	public void endRow(int rowNum) {
 		// Map 으로 변환 처리.
 		if ( isValidationObject(getRowDataMap()) ) {
-			if(rowNum== 5000) {
-				log.debug("{}", getRowDataMap());
-			}
 			rows.add(new HashMap<>(getRowDataMap()));
 			addTotalCount(1);
 			if ( rows.size() % getActionRowSize() == 0 ) {
@@ -88,13 +86,7 @@ public class MapCsvReader extends AbsDataFileReader<Map<String, String>> {
 	
 	@Override
 	public void saveAction(List<Map<String, String>> rows) {
-		if ( CollectionUtils.isNotEmpty(rows) ) {
-			// apache poi 를 사용하므로 common 꺼를 사용... isNotEmpty 도 있고.
-			log.debug("데이터 확인용 샘플. 저장 등의 업무 처리 용으로 사용.");
-			log.debug("first={}", rows.get(0));
-			log.debug("last={}", rows.get(rows.size()-1));
-			log.debug("saveAction rows.size={}", rows.size());
-		}
+		SaveActionUtil.saveAction(rows);
 	}
 	
 	
