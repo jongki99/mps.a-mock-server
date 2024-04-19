@@ -169,4 +169,8 @@ public abstract class AbsMultiFileObjectMapReader<E> implements Closeable {
 //		return cellToField;
 //	}
 	
+	
+	public int getTotalCount() {
+		return reader.getTotalCount();
+	}
 }

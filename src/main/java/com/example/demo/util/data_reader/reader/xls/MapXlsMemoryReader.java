@@ -16,7 +16,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==================================================================== */
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.NumberToTextConverter;
 
 import com.example.demo.util.data_reader.reader.AbsDataFileReader;
-import com.example.demo.util.data_reader.sample.SampleFileConstant;
+import com.example.demo.util.data_reader.sample.reader.TestLocalReader;
 
 import lombok.extern.slf4j.Slf4j;
 import skt.mno.mpai.mps.global.util.StringUtil;
@@ -60,9 +59,6 @@ public class MapXlsMemoryReader<E> extends AbsDataFileReader<Map<String, String>
 	/** saveRowSize 만큼 메모리에 담아둔다. 이를 saveAction 에서 처리한다. */
 	protected List<Map<String, String>> rows = new ArrayList<>();	//실제 엑셀을 파싱해서 담아지는 데이터
 	
-	/** inputStream 닫아 주기 위해서 일단 담아두는데... */
-	private InputStream inputStream;
-
 	/** 메모리로 올린 엑셀 */
 	private HSSFWorkbook workbook;
 
@@ -128,22 +124,7 @@ public class MapXlsMemoryReader<E> extends AbsDataFileReader<Map<String, String>
 	 */
 	@Override
 	public void close() throws IOException {
-		if ( workbook != null ) {
-			try {
-				workbook.close();
-			} catch (Exception e) {
-				// error skip
-				log.error("xls workbook close error:", e);
-			}
-		}
-		if ( inputStream != null ) {
-			try {
-				inputStream.close();
-			} catch (Exception e) {
-				// error skip
-				log.error("xls inputStream close error:", e);
-			}
-		}
+		this.close("xls workbook", workbook);
 	}
 	
 
@@ -153,14 +134,13 @@ public class MapXlsMemoryReader<E> extends AbsDataFileReader<Map<String, String>
 	}
 	@Override
 	public void readData(InputStream inputStream, boolean isAll) throws IOException {
-		this.inputStream = inputStream;
 		this.isAll = isAll;
+		this.workbook = new HSSFWorkbook(inputStream);
 	}
 	
 
 	@Override
 	public void parse() throws IOException {
-		this.workbook = new HSSFWorkbook(inputStream);
 		if ( this.isAll ) {
 			Iterator<Sheet> sheetIterator = workbook.sheetIterator();
 			while (sheetIterator.hasNext()) {
@@ -206,27 +186,8 @@ public class MapXlsMemoryReader<E> extends AbsDataFileReader<Map<String, String>
 	
 
 	public static void main(String[] args) throws Exception {
-		main21(args);
+		TestLocalReader.mainMapXlsMemoryReader(args);
 	}
-	public static void main21(String[] args) throws Exception {
-		final int rowsSize = 1000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
-		
-		List<String> filePaths = new ArrayList<>();
-		filePaths.add(SampleFileConstant.XLS.file_example_XLS_5000);
-		filePaths.add(SampleFileConstant.XLS.file_example_XLS_10);
-		// 5000건 -Xmx9m 까지 동작을 하네... 8m 부터는 OOM
-
-		filePaths.forEach(filePath -> {
-			log.debug("\n\n\n\n\n{}", filePath);
-			try (
-					MapXlsMemoryReader<Map<String, String>> xls2csv = new MapXlsMemoryReader<>(rowsSize);
-			) {
-				xls2csv.readData(new FileInputStream(filePath));
-				xls2csv.parse();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
-	}
-
+	
+	
 }

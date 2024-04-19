@@ -7,8 +7,8 @@ import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import com.example.demo.util.data_reader.sample.SamplePinNumDto;
-import com.example.demo.util.data_reader.sample.reader.TestLocalXlsxReader;
+import com.example.demo.util.data_reader.sample.base.SamplePinNumDto;
+import com.example.demo.util.data_reader.sample.reader.TestLocalReader;
 
 import lombok.extern.slf4j.Slf4j;
 import skt.mno.mpai.mps.global.util.StringUtil;
@@ -76,8 +76,8 @@ public class PinNumXlsxReader extends AbsObjectXlsxReader<SamplePinNumDto> {
 		return true;
 	}
 
-	public static void main(String[] args) {
-		TestLocalXlsxReader.main(args);
+	public static void main(String[] args) throws Exception {
+		TestLocalReader.mainXlsxReaderAll(args);
 	}
 
 	

@@ -6,36 +6,51 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.example.demo.util.data_reader.reader.csv.MapCsvReader;
+import com.example.demo.util.data_reader.reader.xls.MapXlsMemoryReader;
+import com.example.demo.util.data_reader.reader.xls.MapXlsStreamReader;
 import com.example.demo.util.data_reader.reader.xlsx.MapXlsxReader;
 import com.example.demo.util.data_reader.reader.xlsx.PinNumXlsxReader;
-import com.example.demo.util.data_reader.sample.SampleFileConstant;
+import com.example.demo.util.data_reader.sample.base.SampleFileConstant;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class TestLocalXlsxReader {
+public class TestLocalReader {
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception{
+		/** 이게 문제인데... 이것 바꾸는 방법을 ... -_-;;  */
+		System.setProperty("javax.xml.parsers.SAXParserFactory", "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
+		
+		mainXlsxReaderAll(args);
+		
+		mainMapXlsxReader(args);
+		
+		mainMapCsvReader(args);
+		
+		mainMapXlsMemoryReader(args);
+		
+		mainMapXlsStreamReader(args);
+	}
+	
+	public static void mainXlsxReaderAll(String[] args) {
 		/** 이게 문제인데... 이것 바꾸는 방법을 ... -_-;;  */
 		System.setProperty("javax.xml.parsers.SAXParserFactory", "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
 
 //		log.debug("start main1 large test");
-		main1(args);
+		mainPinNumXlsxReaderLarge(args);
 		
 		log.debug("start first sheet");
-		main21(args);
+		mainPinNumXlsxReader(args);
 		log.debug("end first sheet");
 		
 //		log.debug("start multi sheet");
-		main22(args);
+		mainPinNumXlsxReaderAllSheet(args);
 //		log.debug("end first sheet");
-		
 		log.debug("end");
-		
-		mainMap(args);
 	}
 	
-	public static void main1(String[] args) {
+	private static void mainPinNumXlsxReaderLarge(String[] args) {
 		// 메모리 옵션. 메모리 모니터링. 정상. heap size 를 지정한 거라... 조금 많이 오버됨.
 		// 로컬 파일기준이라...
 		// S3 stream 메모리 성능도 그렇고, 이것저것 더 잡아 먹을것 같기는 한데... 일단 read 와 분할처리까지는 테스트.
@@ -76,7 +91,7 @@ public class TestLocalXlsxReader {
 		// 메모리 refresh 되는 동안 대기
 	}
 
-	public static void main21(String[] args) {
+	private static void mainPinNumXlsxReader(String[] args) {
 		final int rowsSize = 10000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
 		
 		List<String> filePaths = new ArrayList<>();
@@ -95,7 +110,7 @@ public class TestLocalXlsxReader {
 		});
 	}
 
-	public static void main22(String[] args) {
+	private static void mainPinNumXlsxReaderAllSheet(String[] args) {
 		final int rowsSize = 10000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
 		
 		List<String> filePaths = new ArrayList<>();
@@ -115,15 +130,15 @@ public class TestLocalXlsxReader {
 	}
 
 
-	public static void mainMap(String[] args) {
+	public static void mainMapXlsxReader(String[] args) {
 		/** 이게 문제인데... 이것 바꾸는 방법을 ... -_-;;  */
 		System.setProperty("javax.xml.parsers.SAXParserFactory", "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
 		
-		mainMap1(args);
-		mainMap2(args);
+		mainMapCouponPinTestMapXlsxReader(args);
+		mainMapMapXlsxReader(args);
 	}
 	
-	public static void mainMap1(String[] args) {
+	public static void mainMapCouponPinTestMapXlsxReader(String[] args) {
 		List<String> filePaths = new ArrayList<>();
 		/**
 		 * java memory 설정. run configuration.
@@ -146,7 +161,7 @@ public class TestLocalXlsxReader {
 		});
 	}
 
-	public static void mainMap2(String[] args) {
+	public static void mainMapMapXlsxReader(String[] args) {
 		
 		List<String> filePaths = new ArrayList<>();
 		filePaths.add(SampleFileConstant.XLSX.test_20_2);
@@ -169,5 +184,77 @@ public class TestLocalXlsxReader {
 				log.error("", e);
 			}
 		});
+	}
+	
+
+	public static void mainMapCsvReader(String[] args) throws Exception {
+		final int rowsSize = 100000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
+		
+		List<String> filePaths = new ArrayList<>();
+//		filePaths.add(SampleFileConstant.XLSX.test_20_2);
+//		filePaths.add(SampleFileConstant.XLS.file_example_XLS_10);
+		filePaths.add(SampleFileConstant.CSV.g_100);
+		filePaths.add(SampleFileConstant.CSV.temp_data_6_columns);
+		// 5000건 -Xmx1m 까지 동작을 하네...
+		// 일단 data 출력 테스트.
+
+		filePaths.forEach(filePath -> {
+			log.debug("\n\n\n\n\n{}", filePath);
+			try (
+					MapCsvReader xls2csv = new MapCsvReader(rowsSize);
+			) {
+				xls2csv.readData(new FileInputStream(filePath));
+				xls2csv.parse();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+	}
+	
+
+	public static void mainMapXlsMemoryReader(String[] args) throws Exception {
+		final int rowsSize = 1000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
+		
+		List<String> filePaths = new ArrayList<>();
+		filePaths.add(SampleFileConstant.XLS.file_example_XLS_5000);
+		filePaths.add(SampleFileConstant.XLS.file_example_XLS_10);
+		// 5000건 -Xmx9m 까지 동작을 하네... 8m 부터는 OOM
+
+		filePaths.forEach(filePath -> {
+			log.debug("\n\n\n\n\n{}", filePath);
+			try (
+					MapXlsMemoryReader<Map<String, String>> xls2csv = new MapXlsMemoryReader<>(rowsSize);
+			) {
+				xls2csv.readData(new FileInputStream(filePath));
+				xls2csv.parse();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
+
+	public static void mainMapXlsStreamReader(String[] args) throws Exception {
+		final int rowsSize = 1000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
+		
+		List<String> filePaths = new ArrayList<>();
+		filePaths.add(SampleFileConstant.XLS.file_example_XLS_10);
+		filePaths.add(SampleFileConstant.XLS.file_example_XLS_5000);
+		// 5000건 -Xmx1m 까지 동작을 하네...
+		// 일단 data 출력 테스트.
+
+		filePaths.forEach(filePath -> {
+			log.debug("\n\n\n\n\n{}", filePath);
+			try (
+					MapXlsStreamReader xls2csv = new MapXlsStreamReader(rowsSize);
+			) {
+				xls2csv.readData(new FileInputStream(filePath));
+				xls2csv.parse();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+
+		Thread.sleep(5000);
 	}
 }

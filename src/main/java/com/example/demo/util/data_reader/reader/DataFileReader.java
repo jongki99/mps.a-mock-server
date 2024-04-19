@@ -33,14 +33,14 @@ import java.util.List;
  * @param <E>
  */
 public interface DataFileReader<E> extends Closeable {
-
+	
 	
 	/**
 	 * Exception 에서 IOException 으로 수정.
 	 */
 	@Override void close() throws IOException;
-
-
+	
+	
 	/**
 	 * 데이터를 읽어들이도록 초기화 설정.
 	 * xls, xlsx 등으로 처리할 경우, 사용.

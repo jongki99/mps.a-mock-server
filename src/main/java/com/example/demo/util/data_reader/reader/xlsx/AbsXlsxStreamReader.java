@@ -117,21 +117,23 @@ public abstract class AbsXlsxStreamReader<E> extends AbsDataFileReader<E> {
 	@Override
 	public void close() throws IOException {
 		this.close("excel(xlsx) opc file", opc);
-		this.close("excel(xlsx) inputStream", inputStream);
 	}
 	
 
 	@Override
 	public void readData(InputStream inputStream, boolean isAll) throws IOException {
 		this.isAll = isAll;
-		this.inputStream = inputStream;
+		try {
+			this.opc = OPCPackage.open(inputStream);
+		} catch (Exception e) {
+			log.error("xlsx parsing error::", e);
+		}
 	}
 	
 
 	@Override
 	public void readData(InputStream inputStream) throws IOException {
-		this.isAll = false;
-		this.inputStream = inputStream;
+		this.readData(inputStream, false);
 	}
 	
 
@@ -141,7 +143,6 @@ public abstract class AbsXlsxStreamReader<E> extends AbsDataFileReader<E> {
 	@Override
 	public void parse() throws IOException {
 		try {
-			this.opc = OPCPackage.open(inputStream);
 			XSSFReader xssfReader = new XSSFReader(opc);
 			StylesTable styles = xssfReader.getStylesTable();
 			ReadOnlySharedStringsTable strings = new ReadOnlySharedStringsTable(opc);
@@ -155,21 +156,20 @@ public abstract class AbsXlsxStreamReader<E> extends AbsDataFileReader<E> {
 			
 			if ( this.isAll ) {
 				while(sheets.hasNext()) {
-					InputStream sheet = sheets.next();
 					log.debug("Processing new sheet::");
-					try {
+					try (InputStream sheet = sheets.next();) {
 						InputSource sheetSource = new InputSource(sheet);
 						log.debug("prev parseing");
 						xmlReader.parse(sheetSource);
 						log.debug("post parseing");
-					} finally {
-						this.close("excel(xlsx) sheet", sheet);
 					}
 				}
 			} else {
 				log.debug("prev parseing(xmlReader.parse(inputSource))");
-				InputSource inputSource = new InputSource(sheets.next());
-				xmlReader.parse(inputSource);
+				try(InputStream sheet = sheets.next();) {
+					InputSource inputSource = new InputSource(sheet);
+					xmlReader.parse(inputSource);
+				}
 				log.debug("post parseing(xmlReader.parse(inputSource))");
 			}
 		} catch (IOException | OpenXML4JException | SAXException | ParserConfigurationException e) {

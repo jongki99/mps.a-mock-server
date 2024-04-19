@@ -8,24 +8,26 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 
 import com.example.demo.util.data_reader.ReadFileTypeEnum;
+import com.example.demo.util.data_reader.sample.base.SampleFileConstant;
+import com.example.demo.util.data_reader.sample.base.SamplePinNumDto;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TestLocalMultiFileReader {
 	public static void main(String[] args) throws Exception {
-		mainPinNumObjectMapReader(args);
+		mainPinNumMultiFileObjectMapReader(args);
 		mainMultiFileHashMapReader(args);
 	}
 
-	public static void mainPinNumObjectMapReader(String[] args) throws Exception {
+	public static void mainPinNumMultiFileObjectMapReader(String[] args) throws Exception {
 		/** 이게 문제인데... 이것 바꾸는 방법을 ... -_-;;  */
 		System.setProperty("javax.xml.parsers.SAXParserFactory", "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
 		
 		final int rowsSize = 1000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
 		List<String> filePaths = new ArrayList<>();
 
-		filePaths.add(SampleFileConstant.CSV.temp_data_6_columns_10row);
+		filePaths.add(SampleFileConstant.CSV.temp_data_6_columns);
 		filePaths.add(SampleFileConstant.XLSX.temp_data_6_columns_20);
 		filePaths.add(SampleFileConstant.XLS.file_example_XLS_10);
 		
@@ -46,6 +48,7 @@ public class TestLocalMultiFileReader {
 					};
 			) {
 				dataFileReader.parse(new FileInputStream(filePath));
+				log.debug("dataFileReader.getTotalCount", dataFileReader.getTotalCount());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -60,7 +63,7 @@ public class TestLocalMultiFileReader {
 		final int rowsSize = 1000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
 		List<String> filePaths = new ArrayList<>();
 
-		filePaths.add(SampleFileConstant.CSV.temp_data_6_columns_10row);
+		filePaths.add(SampleFileConstant.CSV.temp_data_6_columns);
 		filePaths.add(SampleFileConstant.XLSX.temp_data_6_columns_20);
 		filePaths.add(SampleFileConstant.XLS.file_example_XLS_10);
 		
@@ -81,6 +84,7 @@ public class TestLocalMultiFileReader {
 					};
 			) {
 				dataFileReader.parse(new FileInputStream(filePath));
+				log.debug("dataFileReader.getTotalCount", dataFileReader.getTotalCount());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

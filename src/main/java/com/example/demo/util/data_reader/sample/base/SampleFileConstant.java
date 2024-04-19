@@ -1,11 +1,10 @@
-package com.example.demo.util.data_reader.sample;
+package com.example.demo.util.data_reader.sample.base;
 
 public class SampleFileConstant {
 	public static final String projectRootDir = System.getProperty("user.dir");
 	public static final String fileDataDir = projectRootDir + "/src/main/resources/data_reader/";
 
 	public static class CSV {
-		public static final String temp_data_6_columns_10row = fileDataDir + "temp_data_6_columns.csv";
 		public static final String g_100 = fileDataDir + "g_100.csv";
 		public static final String temp_data_6_columns = fileDataDir + "temp_data_6_columns.csv";;
 	}

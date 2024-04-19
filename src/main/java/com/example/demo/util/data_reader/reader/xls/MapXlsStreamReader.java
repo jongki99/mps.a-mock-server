@@ -16,7 +16,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==================================================================== */
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -53,7 +52,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
 import com.example.demo.util.data_reader.reader.AbsDataFileReader;
-import com.example.demo.util.data_reader.sample.SampleFileConstant;
+import com.example.demo.util.data_reader.sample.reader.TestLocalReader;
 
 import lombok.extern.slf4j.Slf4j;
 import skt.mno.mpai.mps.global.util.StringUtil;
@@ -360,9 +359,6 @@ public class MapXlsStreamReader extends AbsDataFileReader<Map<String, String>> i
 	protected List<Map<String, String>> rows = new ArrayList<>();	//실제 엑셀을 파싱해서 담아지는 데이터
 	
 
-	private InputStream inputStream;
-	
-	
 //	public abstract void endRow(int rowNum);
 	
 		
@@ -420,14 +416,13 @@ public class MapXlsStreamReader extends AbsDataFileReader<Map<String, String>> i
 	 */
 	@Override
 	public void close() throws IOException {
+		this.close("xls stubWorkbook", stubWorkbook);
 		this.close("xls fs", fs);
-		this.close("xls inputStream", inputStream);
 	}
 	
 	
 	@Override
 	public void readData(InputStream inputStream) throws IOException {
-		this.inputStream = inputStream;
 		POIFSFileSystem fs = new POIFSFileSystem(inputStream);
 		this.fs = fs;
 		this.minColumns = -1;
@@ -436,7 +431,6 @@ public class MapXlsStreamReader extends AbsDataFileReader<Map<String, String>> i
 	
 	@Override
 	public void readData(InputStream inputStream, boolean isAll) throws IOException {
-		this.inputStream = inputStream;
 		POIFSFileSystem fs = new POIFSFileSystem(inputStream);
 		this.fs = fs;
 		this.minColumns = -1;
@@ -450,30 +444,7 @@ public class MapXlsStreamReader extends AbsDataFileReader<Map<String, String>> i
 	
 	
 	public static void main(String[] args) throws Exception {
-		main21(args);
-	}
-	public static void main21(String[] args) throws Exception {
-		final int rowsSize = 1000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
-		
-		List<String> filePaths = new ArrayList<>();
-		filePaths.add(SampleFileConstant.XLS.file_example_XLS_10);
-		filePaths.add(SampleFileConstant.XLS.file_example_XLS_5000);
-		// 5000건 -Xmx1m 까지 동작을 하네...
-		// 일단 data 출력 테스트.
-
-		filePaths.forEach(filePath -> {
-			log.debug("\n\n\n\n\n{}", filePath);
-			try (
-					MapXlsStreamReader xls2csv = new MapXlsStreamReader(rowsSize);
-			) {
-				xls2csv.readData(new FileInputStream(filePath));
-				xls2csv.parse();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
-
-		Thread.sleep(5000);
+		TestLocalReader.mainMapXlsStreamReader(args);
 	}
 
 }

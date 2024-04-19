@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.example.demo.util.data_reader.ReadFileTypeEnum;
 import com.example.demo.util.data_reader.multi.AbsMultiFileObjectMapReader;
+import com.example.demo.util.data_reader.sample.base.SamplePinNumDto;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,6 +51,6 @@ public abstract class PinNumMultiFileObjectMapReader extends AbsMultiFileObjectM
 	
 	public static void main(String[] args) throws Exception {
 		log.debug("구현 테스트. "+PinNumMultiFileObjectMapReader.class.getSimpleName());
-		TestLocalMultiFileReader.mainPinNumObjectMapReader(args);
+		TestLocalMultiFileReader.mainPinNumMultiFileObjectMapReader(args);
 	}
 }

@@ -45,7 +45,7 @@ public class CouponPinTestMapXlsxReader extends MapXlsxReader {
 	 */
 	public static void main(String[] args) {
 		log.debug("업무별 확장 클래스...");
-		TestLocalXlsxReader.mainMap(args);
+		TestLocalReader.mainMapXlsxReader(args);
 	}
 	
 }

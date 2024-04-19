@@ -7,6 +7,8 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
+import com.example.demo.util.data_reader.sample.reader.TestLocalReader;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -76,4 +78,7 @@ public class MapXlsxReader extends AbsXlsxStreamReader<Map<String, String>> {
 		return true;
 	}
 	
+	public static void main(String[] args) {
+		TestLocalReader.mainMapMapXlsxReader(args);
+	}
 }

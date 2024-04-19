@@ -1,4 +1,4 @@
-package com.example.demo.util.data_reader.sample;
+package com.example.demo.util.data_reader.sample.base;
 
 import lombok.Data;
 
