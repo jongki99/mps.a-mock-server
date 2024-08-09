@@ -16,6 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==================================================================== */
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -83,7 +84,7 @@ public class MapXlsStreamReader extends AbsDataFileReader<Map<String, String>> i
 	private FormatTrackingHSSFListener formatListener;
 	
 	/** So we known which sheet we're on */
-	// 일단 사용안하는데... 되려나? ㅜ.ㅜ // TODOKJK : xls 파일 다중 시트의 경우, 테스트 필요.모든 시트 잘 읽는지.. 이벤트는 잘 되는지 등등..
+	// 일단 사용안하는데... 되려나? ㅜ.ㅜ // xls 파일 다중 시트의 경우, 테스트 필요.모든 시트 잘 읽는지.. 이벤트는 잘 되는지 등등..
 	@SuppressWarnings("unused")
 	private int sheetIndex = -1;
 	private BoundSheetRecord[] orderedBSRs;
@@ -433,6 +434,21 @@ public class MapXlsStreamReader extends AbsDataFileReader<Map<String, String>> i
 		POIFSFileSystem fs = new POIFSFileSystem(inputStream);
 		this.fs = fs;
 		this.minColumns = -1;
+	}
+	
+	
+	@Override
+	public void readData(String filePath, boolean isAll) throws IOException {
+		File file = new File(filePath);
+		POIFSFileSystem fs = new POIFSFileSystem(file, true);
+		this.fs = fs;
+		this.minColumns = -1;
+	}
+	
+
+	@Override
+	public void readData(String filePath) throws IOException {
+		this.readData(filePath, false);
 	}
 	
 	

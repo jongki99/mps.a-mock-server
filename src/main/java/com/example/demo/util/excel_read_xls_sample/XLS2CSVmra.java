@@ -20,12 +20,9 @@ limitations under the License.
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.poi.hssf.eventusermodel.EventWorkbookBuilder.SheetRecordCollectingListener;
 import org.apache.poi.hssf.eventusermodel.FormatTrackingHSSFListener;
@@ -35,13 +32,11 @@ import org.apache.poi.hssf.eventusermodel.HSSFRequest;
 import org.apache.poi.hssf.eventusermodel.MissingRecordAwareHSSFListener;
 import org.apache.poi.hssf.eventusermodel.dummyrecord.LastCellOfRowDummyRecord;
 import org.apache.poi.hssf.eventusermodel.dummyrecord.MissingCellDummyRecord;
-import org.apache.poi.hssf.eventusermodel.dummyrecord.MissingRowDummyRecord;
 import org.apache.poi.hssf.model.HSSFFormulaParser;
 import org.apache.poi.hssf.record.BOFRecord;
 import org.apache.poi.hssf.record.BlankRecord;
 import org.apache.poi.hssf.record.BoolErrRecord;
 import org.apache.poi.hssf.record.BoundSheetRecord;
-import org.apache.poi.hssf.record.EOFRecord;
 import org.apache.poi.hssf.record.FormulaRecord;
 import org.apache.poi.hssf.record.LabelRecord;
 import org.apache.poi.hssf.record.LabelSSTRecord;
@@ -53,20 +48,14 @@ import org.apache.poi.hssf.record.StringRecord;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
-import com.example.demo.util.data_reader.reader.AbsDataFileReader;
-
-import lombok.extern.slf4j.Slf4j;
-import skt.mno.mpai.mps.global.util.StringUtil;
-
 /**
 * A XLS -&gt; CSV processor, that uses the MissingRecordAware
 *  EventModel code to ensure it outputs all columns and rows.
 */
-@Slf4j
-public class XLS2CSVmra<E> extends AbsDataFileReader<Map<String, String>> implements HSSFListener {
+public class XLS2CSVmra implements HSSFListener {
 	private final int minColumns;
 	private final POIFSFileSystem fs;
-//	private final PrintStream output;
+	private final PrintStream output;
 
 	private int lastRowNumber;
 	private int lastColumnNumber;
@@ -94,31 +83,28 @@ public class XLS2CSVmra<E> extends AbsDataFileReader<Map<String, String>> implem
 
 	/**
 	 * Creates a new XLS -&gt; CSV converter
-	 * 
-	 * @param fs         The POIFSFileSystem to process
-	 * @param output     The PrintStream to output the CSV to
-	 * @param minColumns The minimum number of columns to output, or -1 for no
-	 *                   minimum
-	 * @param saveRowSize 
+	 * @param fs The POIFSFileSystem to process
+	 * @param output The PrintStream to output the CSV to
+	 * @param minColumns The minimum number of columns to output, or -1 for no minimum
 	 */
-	public XLS2CSVmra(POIFSFileSystem fs, PrintStream output, int minColumns, int saveRowSize) {
-		super(saveRowSize);
+	public XLS2CSVmra(POIFSFileSystem fs, PrintStream output, int minColumns) {
 		this.fs = fs;
-//		this.output = output;
+		this.output = output;
 		this.minColumns = minColumns;
 	}
 
 	/**
 	 * Creates a new XLS -&gt; CSV converter
-	 * 
-	 * @param filename   The file to process
-	 * @param minColumns The minimum number of columns to output, or -1 for no
-	 *                   minimum
+	 * @param filename The file to process
+	 * @param minColumns The minimum number of columns to output, or -1 for no minimum
 	 *
 	 * @throws IOException if the file cannot be read or parsing the file fails
 	 */
-	public XLS2CSVmra(String filename, int minColumns, int saveRowSize) throws IOException {
-		this(new POIFSFileSystem(new FileInputStream(filename)), System.out, minColumns, saveRowSize);
+	public XLS2CSVmra(String filename, int minColumns) throws IOException {
+		this(
+				new POIFSFileSystem(new FileInputStream(filename)),
+				System.out, minColumns
+		);
 	}
 
 	/**
@@ -133,7 +119,7 @@ public class XLS2CSVmra<E> extends AbsDataFileReader<Map<String, String>> implem
 		HSSFEventFactory factory = new HSSFEventFactory();
 		HSSFRequest request = new HSSFRequest();
 
-		if (outputFormulaValues) {
+		if(outputFormulaValues) {
 			request.addListenerForAllRecords(formatListener);
 		} else {
 			workbookBuildingListener = new SheetRecordCollectingListener(formatListener);
@@ -144,7 +130,8 @@ public class XLS2CSVmra<E> extends AbsDataFileReader<Map<String, String>> implem
 	}
 
 	/**
-	 * Main HSSFListener method, processes events, and outputs the CSV as the file is processed.
+	 * Main HSSFListener method, processes events, and outputs the
+	 *  CSV as the file is processed.
 	 */
 	@Override
 	public void processRecord(org.apache.poi.hssf.record.Record record) {
@@ -152,39 +139,32 @@ public class XLS2CSVmra<E> extends AbsDataFileReader<Map<String, String>> implem
 		int thisColumn = -1;
 		String thisStr = null;
 
-		switch (record.getSid()) {
-		case EOFRecord.sid: // EOF 파일의 끝이라...
-//			log.debug("EOFRecord.sid={}", EOFRecord.sid);
-			// 파일의 끝이니까 시트가 종료된걸로... 인지...
-			// 테스트 해봐야...
-			endSheet();
+		switch (record.getSid())
+		{
+		case BoundSheetRecord.sid:
+			boundSheetRecords.add((BoundSheetRecord)record);
 			break;
-		case BoundSheetRecord.sid: // 시트의 경, 시작부분이라고 봐도 되겠지. 첫번째 시트를 넣고, 두번째를 넣고...
-			boundSheetRecords.add((BoundSheetRecord) record);
-			if ( boundSheetRecords.size() > 1 ) {
-				// 두번째 시트 시작이니까 첫번째 시트 종료된걸로... 인지...
-				// 테스트 해봐야...
-				endSheet();
-			}
-			break;
-		case BOFRecord.sid: // 시트의 시작을 구분... BOFRecord.TYPE_WORKSHEET workSheet 인 경우만? 다른것도 있나?
-			BOFRecord br = (BOFRecord) record;
-			if (br.getType() == BOFRecord.TYPE_WORKSHEET) {
+		case BOFRecord.sid:
+			BOFRecord br = (BOFRecord)record;
+			if(br.getType() == BOFRecord.TYPE_WORKSHEET) {
 				// Create sub workbook if required
-				if (workbookBuildingListener != null && stubWorkbook == null) {
+				if(workbookBuildingListener != null && stubWorkbook == null) {
 					stubWorkbook = workbookBuildingListener.getStubHSSFWorkbook();
 				}
 
 				// Output the worksheet name
 				// Works by ordering the BSRs by the location of
-				// their BOFRecords, and then knowing that we
-				// process BOFRecords in byte offset order
+				//  their BOFRecords, and then knowing that we
+				//  process BOFRecords in byte offset order
 				sheetIndex++;
-				if (orderedBSRs == null) {
+				if(orderedBSRs == null) {
 					orderedBSRs = BoundSheetRecord.orderByBofPosition(boundSheetRecords);
 				}
-//				output.println(); // 개행을 한다고??? 왜 그러지? 결과물을 봐야 되겠구만... xls 파일좀...
-//				output.println(orderedBSRs[sheetIndex].getSheetname() + " [" + (sheetIndex + 1) + "]:");
+				output.println();
+				output.println(
+						orderedBSRs[sheetIndex].getSheetname() +
+						" [" + (sheetIndex+1) + "]:"
+				);
 			}
 			break;
 
@@ -213,8 +193,8 @@ public class XLS2CSVmra<E> extends AbsDataFileReader<Map<String, String>> implem
 			thisRow = frec.getRow();
 			thisColumn = frec.getColumn();
 
-			if (outputFormulaValues) {
-				if (Double.isNaN(frec.getValue())) {
+			if(outputFormulaValues) {
+				if(Double.isNaN( frec.getValue() )) {
 					// Formula result is a string
 					// This is stored in the next record
 					outputNextStringRecord = true;
@@ -224,13 +204,14 @@ public class XLS2CSVmra<E> extends AbsDataFileReader<Map<String, String>> implem
 					thisStr = formatListener.formatNumberDateCell(frec);
 				}
 			} else {
-				thisStr = '"' + HSSFFormulaParser.toFormulaString(stubWorkbook, frec.getParsedExpression()) + '"';
+				thisStr = '"' +
+					HSSFFormulaParser.toFormulaString(stubWorkbook, frec.getParsedExpression()) + '"';
 			}
 			break;
 		case StringRecord.sid:
-			if (outputNextStringRecord) {
+			if(outputNextStringRecord) {
 				// String for formula
-				StringRecord srec = (StringRecord) record;
+				StringRecord srec = (StringRecord)record;
 				thisStr = srec.getString();
 				thisRow = nextRow;
 				thisColumn = nextColumn;
@@ -250,7 +231,7 @@ public class XLS2CSVmra<E> extends AbsDataFileReader<Map<String, String>> implem
 
 			thisRow = lsrec.getRow();
 			thisColumn = lsrec.getColumn();
-			if (sstRecord == null) {
+			if(sstRecord == null) {
 				thisStr = '"' + "(No SST Record, can't identify string)" + '"';
 			} else {
 				thisStr = '"' + sstRecord.getString(lsrec.getSSTIndex()).toString() + '"';
@@ -285,52 +266,40 @@ public class XLS2CSVmra<E> extends AbsDataFileReader<Map<String, String>> implem
 		}
 
 		// Handle new row
-		if (thisRow != -1 && thisRow != lastRowNumber) {
+		if(thisRow != -1 && thisRow != lastRowNumber) {
 			lastColumnNumber = -1;
-			startRow(lastRowNumber); // 수식과 연관이 있을 듯한데.. thisRow 또는 lastRowNumber 로 처리해야 될듯... 샘플이...
-		}
-		
-		// Handle endSheet
-		// log.debug("{}", record);
-		if ( record instanceof MissingRowDummyRecord) {
-			log.debug("{}", record);
-			endSheet();
 		}
 
 		// Handle missing column
-		if (record instanceof MissingCellDummyRecord) {
-			MissingCellDummyRecord mc = (MissingCellDummyRecord) record;
+		if(record instanceof MissingCellDummyRecord) {
+			MissingCellDummyRecord mc = (MissingCellDummyRecord)record;
 			thisRow = mc.getRow();
 			thisColumn = mc.getColumn();
 			thisStr = "";
-			// 요기도 cell 호출하는게 맞을 듯한데.. 없어도 뭐...
 		}
 
 		// If we got something to print out, do so
-		if (thisStr != null) {
-			if (thisColumn > 0) {
-//				output.print(',');
+		if(thisStr != null) {
+			if(thisColumn > 0) {
+				output.print(',');
 			}
-//			output.print(thisStr);
-			cell(getColumnRefName(thisRow, thisColumn), thisStr, null);
+			output.print(thisStr);
 		}
 
 		// Update column and row count
-		if (thisRow > -1)
+		if(thisRow > -1)
 			lastRowNumber = thisRow;
-		if (thisColumn > -1)
+		if(thisColumn > -1)
 			lastColumnNumber = thisColumn;
 
 		// Handle end of row
-		if (record instanceof LastCellOfRowDummyRecord) {
+		if(record instanceof LastCellOfRowDummyRecord) {
 			// Print out any missing commas if needed
-			if (minColumns > 0) {
+			if(minColumns > 0) {
 				// Columns are 0 based
-				if (lastColumnNumber == -1) {
-					lastColumnNumber = 0;
-				}
-				for (int i = lastColumnNumber; i < (minColumns); i++) {
-//					output.print(',');
+				if(lastColumnNumber == -1) { lastColumnNumber = 0; }
+				for(int i=lastColumnNumber; i<(minColumns); i++) {
+					output.print(',');
 				}
 			}
 
@@ -338,107 +307,23 @@ public class XLS2CSVmra<E> extends AbsDataFileReader<Map<String, String>> implem
 			lastColumnNumber = -1;
 
 			// End the row
-			// output.println();
-			endRow(lastRowNumber);
+			output.println();
 		}
 	}
-
-
-	protected List<Map<String, String>> rows = new ArrayList<>();	//실제 엑셀을 파싱해서 담아지는 데이터
-	
-	
-//	@Override
-//	public abstract void endRow(int rowNum);
-		
-	@Override
-	public void endRow(int rowNum) {
-		// Map 으로 변환 처리.
-
-		if ( isValidationObject(getRowDataMap()) ) {
-			rows.add(new HashMap<>(getRowDataMap()));
-			addTotalCount(1);
-			if ( rows.size() % getActionRowSize() == 0 ) {
-				if (rows != null && rows.size() > 0) {
-					saveAction(rows);
-				}
-				rows.clear();
-			}
-		}
-	}
-
-
-	@Override
-	public void endSheet() {
-		// endRow 후 잔여 list 처리.
-		if (rows != null && rows.size() > 0) {
-			saveAction(rows);
-		}
-		rows.clear();
-		log.debug("totalCount={}", getTotalCount());
-	}
-
-	@Override
-	public void saveAction(List<Map<String, String>> rows) {
-		log.debug("saveAction rows.size={}", rows.size());
-	}
-	
 
 	public static void main(String[] args) throws Exception {
-		main21(args);
-	}
-	public static void main21(String[] args) throws Exception {
-		final int rowsSize = 9; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
-		
-		List<String> filePaths = new ArrayList<>();
-		// filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample/test_20-2.xlsx");
-		filePaths.add("/Users/P170355/Downloads/work-down/work-dev/8933-cpnPinUp/sample_xls_down/file_example_XLS_10.xls");
-
-		filePaths.forEach(filePath -> {
-			log.debug(filePath);
-			try (
-					XLS2CSVmra<Map<String, String>> xls2csv = new XLS2CSVmra<>(filePath, -1, rowsSize);
-			) {
-				xls2csv.parse();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		});
-	}
-
-	@Override
-	public boolean isValidationObject(Map<String, String> row) {
-		if ( StringUtil.isBlank(row.get("A")) ) {
-			return false;
+		if(args.length < 1) {
+			System.err.println("Use:");
+			System.err.println("  XLS2CSVmra <xls file> [min columns]");
+			System.exit(1);
 		}
-		
-		// 정상이다.
-		return true;
-	}
 
-	@Override
-	public void close() throws IOException {
-		if ( this.fs != null ) {
-			try {
-				this.fs.close();
-			} catch (Exception e) {
-				log.error("excel fs close error::", e);
-			}
+		int minColumns = -1;
+		if(args.length >= 2) {
+			minColumns = Integer.parseInt(args[1]);
 		}
-	}
 
-	@Override
-	public void readData(InputStream inputStream, boolean isAll) throws IOException {
-		
+		XLS2CSVmra xls2csv = new XLS2CSVmra(args[0], minColumns);
+		xls2csv.process();
 	}
-
-	@Override
-	public void readData(InputStream inputStream) throws IOException {
-		
-	}
-
-	@Override
-	public void parse() throws IOException {
-		this.process();
-	}
-
 }

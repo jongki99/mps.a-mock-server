@@ -45,6 +45,9 @@ public interface DataFileReader<E> extends Closeable {
 	 * 데이터를 읽어들이도록 초기화 설정.
 	 * xls, xlsx 등으로 처리할 경우, 사용.
 	 * 
+	 * xlsx 에서 메모리를 많이 차지 하므로, 파일로 저장하고, File 을 전달하는 메소드를 사용한다.
+	 * 이게 메모리니까 더 빠르겠지?
+	 * 
 	 * @param filePath : 파일을 직접 참조할 수 있는 경로, inputStream 일 때가 있는데...
 	 * @param isAll : xlsx, xls 에서 multi sheet 기준으로 처리해야 할때, true 면 모든 sheet 를 각각 읽어 들일수 있도록 하는 옵션. csv 는 단일 구조라 대상이 아님.
 	 */
@@ -55,11 +58,31 @@ public interface DataFileReader<E> extends Closeable {
 	 * s3 파일을 직접 읽어서 처리하는 경우, inputStream 을 제공하여 처리하는 경우...
 	 * 첫번째 시트만을 보통 사용하므로, 이것으로 호출.
 	 * 
+	 * xlsx 에서 메모리를 많이 차지 하므로, 파일로 저장하고, File 을 전달하는 메소드를 사용한다.
+	 * 이게 메모리니까 더 빠르겠지?
+	 * 
 	 * xls : sample 이 FileInputStream 이니까 이걸로 대신 전달해도 됨. 
 	 * 
 	 * @param inputStream
 	 */
 	public void readData(InputStream inputStream) throws IOException;
+	
+	
+	/**
+	 * xlsx 에서 inputStream 을 사용하면 read_write 모드로 메모리를 많이 차지 한다.
+	 * 
+	 * @param filePath : 파일을 직접 참조할 수 있는 경로
+	 * @param isAll : xlsx, xls 에서 multi sheet 기준으로 처리해야 할때, true 면 모든 sheet 를 각각 읽어 들일수 있도록 하는 옵션. csv 는 단일 구조라 대상이 아님.
+	 */
+	public void readData(String filePath, boolean isAll) throws IOException;
+	
+	
+	/**
+	 * xlsx 에서 inputStream 을 사용하면 read_write 모드로 메모리를 많이 차지 한다.
+	 * 
+	 * @param filePath
+	 */
+	public void readData(String filePath) throws IOException;
 	
 	
 	/**

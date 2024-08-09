@@ -25,15 +25,15 @@ public class TestLocalReader {
 		/** 이게 문제인데... 이것 바꾸는 방법을 ... -_-;;  */
 		System.setProperty("javax.xml.parsers.SAXParserFactory", "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
 		
-		mainXlsxReaderAll(args);
+//		mainXlsxReaderAll(args);
 		
-		mainMapXlsxReader(args);
+//		mainMapXlsxReader(args);
 		
-		mainMapCsvReader(args);
+//		mainMapCsvReader(args);
 		
 		mainMapXlsMemoryReader(args);
 		
-		mainMapXlsStreamReader(args);
+//		mainMapXlsStreamReader(args);
 	}
 	
 	public static void mainXlsxReaderAll(String[] args) {
@@ -238,8 +238,10 @@ public class TestLocalReader {
 		final int rowsSize = 1000; // 약 7초 걸림. 메모리를 안쓰면 더 빠르네?
 		
 		List<String> filePaths = new ArrayList<>();
-		filePaths.add(SampleFileConstant.XLS.file_example_XLS_5000);
-		filePaths.add(SampleFileConstant.XLS.file_example_XLS_10);
+//		filePaths.add(SampleFileConstant.XLS.file_example_XLS_5000);
+//		filePaths.add(SampleFileConstant.XLS.file_example_XLS_10);
+//		filePaths.add(SampleFileConstant.XLS.file_example_XLS_20000_emptyCell);
+//		filePaths.add(SampleFileConstant.XLS.file_example_XLS_20000_emptyRow);
 		// 5000건 -Xmx9m 까지 동작을 하네... 8m 부터는 OOM
 
 		filePaths.forEach(filePath -> {
@@ -262,6 +264,7 @@ public class TestLocalReader {
 		List<String> filePaths = new ArrayList<>();
 		filePaths.add(SampleFileConstant.XLS.file_example_XLS_10);
 		filePaths.add(SampleFileConstant.XLS.file_example_XLS_5000);
+//		filePaths.add(SampleFileConstant.XLS.file_example_XLS_20000_emptyRow); // 이거 때문에 사용중지. 천천히 할껄...
 		// 5000건 -Xmx1m 까지 동작을 하네...
 		// 일단 data 출력 테스트.
 

@@ -11,10 +11,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.eventusermodel.ReadOnlySharedStringsTable;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
-import org.apache.poi.xssf.eventusermodel.XSSFSheetXMLHandler;
 import org.apache.poi.xssf.model.StylesTable;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -135,6 +135,23 @@ public abstract class AbsXlsxStreamReader<E> extends AbsDataFileReader<E> {
 		this.readData(inputStream, false);
 	}
 	
+	
+	@Override
+	public void readData(String filePath, boolean isAll) throws IOException {
+		this.isAll = isAll;
+		try {
+			this.opc = OPCPackage.open(filePath, PackageAccess.READ);
+		} catch (Exception e) {
+			log.error("xlsx parsing error::", e);
+		}
+	}
+	
+
+	@Override
+	public void readData(String filePath) throws IOException {
+		this.readData(filePath, false);
+	}
+	
 
 	/**
 	 * 데이터 읽기 시작 처리.
@@ -145,7 +162,7 @@ public abstract class AbsXlsxStreamReader<E> extends AbsDataFileReader<E> {
 			XSSFReader xssfReader = new XSSFReader(opc);
 			StylesTable styles = xssfReader.getStylesTable();
 			ReadOnlySharedStringsTable strings = new ReadOnlySharedStringsTable(opc);
-			ContentHandler handle = new XSSFSheetXMLHandler(styles, strings, this, false);
+			ContentHandler handle = new XSSFSheetXMLNumTextHandler(styles, strings, this, false);
 
 			//엑셀의 시트를 하나만 가져오기.
 			//여러개일경우 iter문으로 추출해야 함. (iter문으로)

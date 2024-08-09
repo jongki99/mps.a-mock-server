@@ -16,6 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==================================================================== */
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -52,6 +53,9 @@ public class MapCsvReader extends AbsDataFileReader<Map<String, String>> {
 	
 	
 	private InputStreamReader inputStreamReader;
+
+
+	private FileInputStream fileInputStream;
 	
 	
 //	public abstract void endRow(int rowNum);
@@ -107,6 +111,7 @@ public class MapCsvReader extends AbsDataFileReader<Map<String, String>> {
 	@Override
 	public void close() throws IOException {
 		this.close("csv inputStreamReader", inputStreamReader);
+		this.close("fileInputStream", fileInputStream);
 	}
 	
 	
@@ -119,6 +124,20 @@ public class MapCsvReader extends AbsDataFileReader<Map<String, String>> {
 	@Override
 	public void readData(InputStream inputStream, boolean isAll) throws IOException {
 		this.inputStreamReader = new InputStreamReader(inputStream);
+	}
+	
+	
+	@Override
+	public void readData(String filePath, boolean isAll) throws IOException {
+		this.fileInputStream = new FileInputStream(filePath);
+		this.inputStreamReader = new InputStreamReader(fileInputStream);
+	}
+	
+
+	@Override
+	public void readData(String filePath) throws IOException {
+		this.fileInputStream = new FileInputStream(filePath);
+		this.inputStreamReader = new InputStreamReader(fileInputStream);
 	}
 	
 	

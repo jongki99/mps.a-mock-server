@@ -11,6 +11,8 @@ public class SampleFileConstant {
 	public static class XLS {
 		public static final String file_example_XLS_10 = fileDataDir + "file_example_XLS_10.xls";
 		public static final String file_example_XLS_5000 = fileDataDir + "file_example_XLS_5000.xls";
+		public static final String file_example_XLS_20000_emptyCell = fileDataDir + "202408_Baemin_VIPPICK.xls";
+		public static final String file_example_XLS_20000_emptyRow = fileDataDir + "Dalkomm_2408_americano.xls";
 	}
 	public static class XLSX {
 		public static final String temp_data_6_columns_20 = fileDataDir + "temp_data_6_columns_20.xlsx";
