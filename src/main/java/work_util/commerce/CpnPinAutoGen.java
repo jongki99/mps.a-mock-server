@@ -18,7 +18,7 @@ public class CpnPinAutoGen {
 
     public static void main(String[] args) {
         String prefix = "20240808"; // 접두사
-        int rowCount = 10000; // 생성할 행 수
+        int rowCount = 1000; // 생성할 행 수
         boolean useIncrement = true; // true: 증분, false: 랜덤 문자
         int columnCount = 4; // 생성할 열 수
         String fileName;
@@ -100,11 +100,11 @@ public class CpnPinAutoGen {
     }
 
     private static String generateValue(String prefix, int increment, Random random) {
-        StringBuilder sb = new StringBuilder(prefix);
+        StringBuilder sb = new StringBuilder(prefix+"_");
         if (increment >= 0) {
-            sb.append(String.format("%06d", increment));
+            sb.append(String.format("%010d", increment));
         } else {
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 10; i++) {
                 sb.append(randomChar(random));
             }
         }

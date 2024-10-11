@@ -1,7 +1,13 @@
 
 logging:
-    file:
-        name: /dev/null
-        max-size: 4GB
-    level:
-        skt.mno.mpai.mps: ERROR
+  file:
+    name: /dev/null
+    max-size: 4GB
+  level:
+    root: INFO
+    com.example.demo.app: DEBUG
+    skt.mno.mpai.mps: ERROR
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss}\n - %msg%n"
+aes:
+  key: "1234567890123456" # 16자 길이의 AES 키

@@ -1,10 +1,10 @@
-
 plugins {
     id 'org.springframework.boot' version '2.3.6.RELEASE'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
     id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
     id 'java'
     id "de.undercouch.download" version "4.1.1"
+    id 'maven-publish'
 }
 
 group = 'mps.a-mock-server'
@@ -13,7 +13,7 @@ version = '0.0.1-SNAPSHOT'
 
 group = 'skt.mno.mpai.mps'
 version = '1.0.0-SNAPSHOT'
-sourceCompatibility = '1.8'
+sourceCompatibility = '11'
 
 def queryDSLVersion = '4.2.2'
 def profile = System.getenv('ZONE_NAME') == null ? 'local' : System.getenv('ZONE_NAME')
@@ -58,6 +58,21 @@ dependencies {
 	    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	    
 	    
+    implementation 'commons-lang:commons-lang:2.6'
+    implementation 'org.dom4j:dom4j:2.0.2'
+    implementation 'net.sf.barcode4j:barcode4j:2.1'
+    implementation 'commons-codec:commons-codec:1.9'
+
+    // latest bom version check
+    implementation platform('software.amazon.awssdk:bom:2.15.41')
+    implementation 'software.amazon.awssdk:s3'
+    implementation 'software.amazon.awssdk:dynamodb:2.15.73'
+    implementation 'com.amazonaws:aws-java-sdk-secretsmanager:1.12.148'
+//    implementation 'com.amazonaws:aws-java-sdk-secretsmanager:1.12.403'
+//	implementation 'com.amazonaws:aws-java-sdk-sts'
+//    implementation 'software.amazon.awssdk:secretsmanager:2.17.0' // 여기에 최신 버전
+//    implementation 'software.amazon.awssdk:sts:2.17.0'            // 여기에 최신 버전
+
     implementation "skt.mno.mpai.mps:mps.corelib.global:1.0.36-${corelibVersion}"
     implementation "skt.mno.mpai.mps:mps.corelib.core:1.0.69-${corelibVersion}"
     implementation "skt.mno.mpai.mps:mps.corelib.cache:1.0.16-${corelibVersion}"
@@ -66,6 +81,50 @@ dependencies {
 	// 엑셀파일poi
 	implementation ('org.apache.poi:poi:4.1.2')
 	implementation ('org.apache.poi:poi-ooxml:4.1.2')
-	implementation 'org.apache.commons:commons-csv:1.8'
+	implementation 'commons-io:commons-io:2.11.0'
+	implementation 'org.apache.commons:commons-csv:1.9.0'
     
+    //modelmapper
+	// compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.9'
+	compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.0'
+    
+	// AES256
+	implementation 'org.bouncycastle:bcprov-jdk15on:1.64@jar'
+}
+
+
+def querydslDir = "${rootDir}/src/main/generated"
+
+querydsl {
+    jpa = true
+    querydslSourcesDir = querydslDir
+}
+
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl
+}
+
+sourceSets {
+    generated {
+        compileClasspath = configurations.compileClasspath
+    }
+    main {
+        java {
+            srcDirs = ['src/main/java', querydslDir, 'src/generated/java']
+        }
+        compileClasspath += generated.output
+        runtimeClasspath += generated.output
+    }
+    test {
+        compileClasspath += generated.output
+        runtimeClasspath += generated.output
+    }
+}
+
+bootRun {
+    classpath += sourceSets.generated.output
+}
+
+jar {
+    from sourceSets.generated.output
 }

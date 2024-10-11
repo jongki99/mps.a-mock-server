@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.input.BOMInputStream;
 
 import com.example.demo.util.data_reader.reader.AbsDataFileReader;
 import com.example.demo.util.data_reader.sample.base.SaveActionUtil;
@@ -117,27 +118,31 @@ public class MapCsvReader extends AbsDataFileReader<Map<String, String>> {
 	
 	@Override
 	public void readData(InputStream inputStream) throws IOException {
-		this.inputStreamReader = new InputStreamReader(inputStream);
+		BOMInputStream bom = new BOMInputStream(inputStream);
+		this.inputStreamReader = new InputStreamReader(bom);
 	}
 	
 	
 	@Override
 	public void readData(InputStream inputStream, boolean isAll) throws IOException {
-		this.inputStreamReader = new InputStreamReader(inputStream);
+		BOMInputStream bom = new BOMInputStream(inputStream);
+		this.inputStreamReader = new InputStreamReader(bom);
 	}
-	
-	
+
+
 	@Override
 	public void readData(String filePath, boolean isAll) throws IOException {
 		this.fileInputStream = new FileInputStream(filePath);
-		this.inputStreamReader = new InputStreamReader(fileInputStream);
+		BOMInputStream bom = new BOMInputStream(this.fileInputStream);
+		this.inputStreamReader = new InputStreamReader(bom);
 	}
-	
+
 
 	@Override
 	public void readData(String filePath) throws IOException {
 		this.fileInputStream = new FileInputStream(filePath);
-		this.inputStreamReader = new InputStreamReader(fileInputStream);
+		BOMInputStream bom = new BOMInputStream(this.fileInputStream);
+		this.inputStreamReader = new InputStreamReader(bom);
 	}
 	
 	
