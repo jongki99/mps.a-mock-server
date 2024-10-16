@@ -11,3 +11,4 @@ logging:
     console: "%d{yyyy-MM-dd HH:mm:ss}\n - %msg%n"
 aes:
   key: "1234567890123456" # 16자 길이의 AES 키
+datadog.aes-key: "1234567890123456" # 개발 로그 암복호화.

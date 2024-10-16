@@ -1,4 +1,4 @@
-package com.example.demo.app;
+package com.example.demo.app.util.crypt;
 
 import lombok.extern.slf4j.Slf4j;
 import javax.crypto.Cipher;

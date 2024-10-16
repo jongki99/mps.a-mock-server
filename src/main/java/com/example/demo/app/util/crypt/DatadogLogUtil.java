@@ -1,8 +1,11 @@
-package com.example.demo.app;
+package com.example.demo.app.util.crypt;
 
 import lombok.extern.slf4j.Slf4j;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.beans.factory.annotation.Value;
+
 import java.util.Base64;
 
 @Slf4j
@@ -10,6 +13,7 @@ public class DatadogLogUtil {
 
     private static final String ALGORITHM = "AES";
     private static final String TRANSFORMATION = "AES/ECB/PKCS5Padding";
+    @Value("datadog.aes-key")
     private final String key;
 
     /**
